@@ -1,13 +1,14 @@
 import 'dart:math';
 
+import 'package:get/get.dart';
 import 'package:remaze/models/maze_map.dart';
 
 import '../models/cube.dart';
 
 class TestData {
-  MazeMap createTestMap() {
-    List<List<Cube>> maze = List.generate(60, (row) {
-      return List.generate(30, (col) {
+  static MazeMap createTestMap() {
+    List<List<Cube>> maze = List.generate(35, (row) {
+      return List.generate(20, (col) {
         return Cube(
             row: row,
             col: col,
@@ -23,15 +24,19 @@ class TestData {
             isTeleportExit_A_Here: false,
             isTeleportDoor_B_Here: false,
             isTeleportExit_B_Here: false,
-            isBorder: false);
+            isBorderRight: col == 19 ? true : false,
+            isBorderDown: row == 34 ? true : false);
       });
     });
-    maze[0][0].isPlayer_A_Here = true;
-    maze[59][29].isPlayer_B_Here = true;
+    maze[0][maze[0].length - 1].isPlayer_B_Here = true;
+    maze[maze.length-1][0].isPlayer_A_Here = true;
+
+    maze[0][maze[0].length - 1].is_B_START = true;
+    maze[34][0].is_A_START = true;
     return MazeMap(
         mazeMap: maze,
-        Player_A_Coord: Coordinates(isInit: true, row: 0, col: 0),
-        Player_B_Coord: Coordinates(isInit: true, row: 59, col: 29),
+        Player_B_Coord: Coordinates(isInit: true, row: 0, col: maze[0].length - 1),
+        Player_A_Coord: Coordinates(isInit: true, row: maze.length-1, col: 0),
         A_FrozenInstalled: false,
         B_FrozenInstalled: false,
         A_DoorInstalled: false,

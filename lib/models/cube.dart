@@ -14,7 +14,8 @@ class Cube {
   bool isTeleportExit_A_Here;
   bool isTeleportDoor_B_Here;
   bool isTeleportExit_B_Here;
-  bool isBorder;
+  bool isBorderRight;
+  bool isBorderDown;
   Cube({
     required this.row,
     required this.col,
@@ -30,7 +31,8 @@ class Cube {
     required this.isTeleportExit_A_Here,
     required this.isTeleportDoor_B_Here,
     required this.isTeleportExit_B_Here,
-    required this.isBorder,
+    required this.isBorderRight,
+    required this.isBorderDown,
   }) {
     if (wall) {
       isPlayer_A_Here = false;

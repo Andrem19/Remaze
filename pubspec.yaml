@@ -67,6 +67,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/maze_preview.jpg
+    - assets/images/snowflake.jpg
+    - assets/images/teleport.jpg
     - assets/audio/
 
   # An image asset can refer to one or more resolution-specific "variants", see

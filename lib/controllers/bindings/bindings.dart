@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 
-import '../main_game_controller.dart';
+import '../game_act_controller.dart';
 
 class MainScreenBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(MainGameController(), permanent: true);
+    Get.put(GameActController(), permanent: true);
   }
 }

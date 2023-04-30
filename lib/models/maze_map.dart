@@ -3,7 +3,7 @@ import 'package:remaze/models/palyer.dart';
 
 import 'cube.dart';
 
-enum Direction { top, bottom, left, right }
+enum Direction { up, down, left, right }
 
 class MazeMap {
   //Should be 60x30 cube
@@ -38,13 +38,13 @@ class MazeMap {
     required this.ExitTeleport_B,
   });
 
-  void movePlayer_A(Direction direction) {
+  void MovePlayer_A(Direction direction) {
     if (Player_A_Frozen != 0) {
       Player_A_Frozen -= 1;
       return;
     }
     switch (direction) {
-      case Direction.top:
+      case Direction.up:
         if (Player_A_Coord.row != 0) {
           if (!mazeMap[Player_A_Coord.row - 1][Player_A_Coord.col].wall) {
             mazeMap[Player_A_Coord.row][Player_A_Coord.col].isPlayer_A_Here = false;
@@ -53,8 +53,8 @@ class MazeMap {
           }
         }
         break;
-      case Direction.bottom:
-        if (Player_A_Coord.row != 59) {
+      case Direction.down:
+        if (Player_A_Coord.row != mazeMap.length-1) {
           if (!mazeMap[Player_A_Coord.row + 1][Player_A_Coord.col].wall) {
             mazeMap[Player_A_Coord.row][Player_A_Coord.col].isPlayer_A_Here = false;
             mazeMap[Player_A_Coord.row + 1][Player_A_Coord.col].isPlayer_A_Here = true;
@@ -72,7 +72,7 @@ class MazeMap {
         }
         break;
       case Direction.right:
-        if (Player_A_Coord.row != 29) {
+        if (Player_A_Coord.col != mazeMap[0].length-1) {
           if (!mazeMap[Player_A_Coord.row][Player_A_Coord.col + 1].wall) {
             mazeMap[Player_A_Coord.row][Player_A_Coord.col].isPlayer_A_Here = false;
             mazeMap[Player_A_Coord.row][Player_A_Coord.col + 1].isPlayer_A_Here = true;
