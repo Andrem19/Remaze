@@ -1,16 +1,21 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:remaze/views/widgets/maze_map_widget.dart';
+import 'package:get/get.dart';
+import 'package:remaze/views/maze_map_screen.dart';
 
 class MazeGameAct extends StatelessWidget {
-  const MazeGameAct({super.key});
+  MazeGameAct({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: MazeMapScreen(),
+      body: Center(
+        child: Container(
+          width: kIsWeb ? Get.size.width / 3 : Get.size.width,
+          child: MazeMapScreen(),
+        ),
       ),
     );
   }

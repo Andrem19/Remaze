@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
 
 import 'package:remaze/controllers/game_act_controller.dart';
+import 'package:remaze/controllers/map_editor_controller.dart';
 import 'package:remaze/models/cube.dart';
 
 class CubeBrick extends StatelessWidget {
@@ -17,14 +18,12 @@ class CubeBrick extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        constraints: BoxConstraints(
-          maxWidth: Get.width / 20,
-          minWidth: Get.width / 20,
-          // minHeight: Get.width / 20,
-          // maxHeight: Get.width / 20,
-        ),
         decoration: BoxDecoration(
-          color: cubeProto.wall ? Color.fromARGB(255, 43, 26, 23) : (cubeProto.is_A_START || cubeProto.is_B_START) ? Colors.yellow : Colors.white30,
+          color: cubeProto.wall
+              ? Color.fromARGB(255, 43, 26, 23)
+              : (cubeProto.is_A_START || cubeProto.is_B_START)
+                  ? Colors.yellow
+                  : Colors.white30,
           border: Border.all(
             width: 2.0,
             color: Colors.black12,

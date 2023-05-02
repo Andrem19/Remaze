@@ -7,9 +7,18 @@ import '../models/cube.dart';
 
 class TestData {
   static MazeMap createTestMap() {
-    List<List<Cube>> maze = List.generate(35, (row) {
-      return List.generate(20, (col) {
+    int high = 35;
+    int width = 20;
+    List<List<Cube>> maze = List.generate(high, (row) {
+      return List.generate(width, (col) {
+            bool editA;
+            if (row <= high/2) {
+              editA = false;
+            } else {
+              editA = true;
+            }
         return Cube(
+            editAlowd: editA,
             row: row,
             col: col,
             wall: false,

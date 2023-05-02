@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "830617567109",
+    "project_id": "mazegame-1cf72",
+    "storage_bucket": "mazegame-1cf72.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830617567109:android:910b756f85ac662e53ceec",
+        "android_client_info": {
+          "package_name": "com.example.remaze"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830617567109-3ia8g22v3t003vv927itd8og45gd68kj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDySpVIrRoFMaqgFQgZjjUdSRske9L8jEA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830617567109-3ia8g22v3t003vv927itd8og45gd68kj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

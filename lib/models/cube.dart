@@ -14,6 +14,7 @@ class Cube {
   bool isTeleportExit_A_Here;
   bool isTeleportDoor_B_Here;
   bool isTeleportExit_B_Here;
+  bool editAlowd;
   bool isBorderRight;
   bool isBorderDown;
   Cube({
@@ -31,6 +32,7 @@ class Cube {
     required this.isTeleportExit_A_Here,
     required this.isTeleportDoor_B_Here,
     required this.isTeleportExit_B_Here,
+    required this.editAlowd,
     required this.isBorderRight,
     required this.isBorderDown,
   }) {

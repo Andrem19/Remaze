@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:remaze/controllers/routing/app_pages.dart';
 import 'package:remaze/views/maze_game_act.dart';
 
 class GeneralMenu extends StatelessWidget {
@@ -22,7 +23,7 @@ class GeneralMenu extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
-                width: Get.size.width /3,
+                width: Get.size.width / 3,
                 child: ElevatedButton(
                   child: Text('START'),
                   style: ElevatedButton.styleFrom(
@@ -30,14 +31,15 @@ class GeneralMenu extends StatelessWidget {
                       textStyle: const TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold)),
                   onPressed: () {
-                    Get.to(MazeGameAct());
+                    Get.toNamed(Routes.GAME_ACT);
                   },
-                ),),
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
-                width: Get.size.width /3,
+                width: Get.size.width / 3,
                 child: ElevatedButton(
                   child: Text('LEADERBOARD'),
                   style: ElevatedButton.styleFrom(
@@ -45,14 +47,31 @@ class GeneralMenu extends StatelessWidget {
                       textStyle: const TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold)),
                   onPressed: () {
-                    Get.to(MazeGameAct());
+
                   },
-                ),),
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
-                width: Get.size.width /3,
+                width: Get.size.width / 3,
+                child: ElevatedButton(
+                  child: Text('MAP EDITOR'),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      textStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold)),
+                  onPressed: () {
+                    Get.toNamed(Routes.MAP_EDITOR);
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: Get.size.width / 3,
                 child: ElevatedButton(
                   child: Text('SETTINGS'),
                   style: ElevatedButton.styleFrom(
@@ -60,9 +79,10 @@ class GeneralMenu extends StatelessWidget {
                       textStyle: const TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold)),
                   onPressed: () {
-                    Get.to(MazeGameAct());
+
                   },
-                ),),
+                ),
+              ),
             ),
           ],
         ),
