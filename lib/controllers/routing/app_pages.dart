@@ -3,6 +3,7 @@ import 'package:remaze/controllers/bindings/bindings.dart';
 import 'package:remaze/views/general_menu.dart';
 import 'package:remaze/views/map_editor.dart';
 import 'package:remaze/views/maze_game_act.dart';
+import 'package:remaze/views/profile_settings.dart';
 
 part 'app_routes.dart';
 
@@ -26,7 +27,9 @@ class AppPages {
       page: () => MapEditorScreen(),
       binding: MapEditorBinding()
     ),
-    // GetPage(name: _Paths.LOGIN, page: () => const LoginView(), binding: LoginBinding()),
-    // GetPage(name: _Paths.SIGNUP, page: () => Container()),
+    GetPage(
+      name: _Paths.SETTINGS, 
+      page: () => ProfileSettings(),
+    ),
   ];
 }
