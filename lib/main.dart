@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'controllers/bindings/bindings.dart';
 import 'controllers/routing/app_pages.dart';
 import 'firebase_options.dart';
+import 'keys.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      scaffoldMessengerKey: Keys.scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
