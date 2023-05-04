@@ -20,13 +20,15 @@ class MapEditorScreen extends StatelessWidget {
       return Scaffold(
         body: Center(
           child: Container(
-            decoration: kIsWeb ? BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Color.fromARGB(255, 72, 68, 68),
-            boxShadow: [
-              BoxShadow(color: Colors.green, spreadRadius: 3),
-            ],
-          ) : const BoxDecoration(),
+            decoration: kIsWeb
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Color.fromARGB(255, 72, 68, 68),
+                    boxShadow: [
+                      BoxShadow(color: Colors.green, spreadRadius: 3),
+                    ],
+                  )
+                : const BoxDecoration(),
             width: kIsWeb ? Get.size.width / 3 : Get.size.width,
             child: Stack(
               alignment: Alignment.topCenter,
@@ -34,7 +36,8 @@ class MapEditorScreen extends StatelessWidget {
                 Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: List.generate(controller.mazeMap.mazeMap.length, (row) {
+                    children:
+                        List.generate(controller.mazeMap.mazeMap.length, (row) {
                       return Expanded(
                         child: Row(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -59,8 +62,12 @@ class MapEditorScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(20.0),
                   child: Opacity(
                       opacity: 0.5,
-                      child: ElevatedButton(onPressed: () {}, child: Text('Save'))),
-                )
+                      child: ElevatedButton(
+                          onPressed: () {
+                            controller.saveMap();
+                          },
+                          child: Text('Save'))),
+                ),
               ],
             ),
           ),

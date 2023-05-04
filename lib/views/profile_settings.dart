@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -52,8 +53,9 @@ class ProfileSettings extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            width:
-                                kIsWeb ? Get.size.width / 6 : Get.size.width / 2,
+                            width: kIsWeb
+                                ? Get.size.width / 6
+                                : Get.size.width / 2,
                             child: CustomTextField(
                                 controller: controller.userNameController.value,
                                 iconData: Icons.person,
@@ -69,7 +71,9 @@ class ProfileSettings extends StatelessWidget {
                                       RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18.0),
                               ))),
-                              onPressed: () {},
+                              onPressed: () {
+                                controller.updateName();
+                              },
                               child: Text('Submit')),
                         ],
                       ),
@@ -86,14 +90,15 @@ class ProfileSettings extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          '${controller.player.value.migrationToken ?? 0}',
+                          '${controller.migrationTokenGen}',
                           style: TextStyle(fontSize: 15),
                         ),
                       ),
                       ElevatedButton(
                           style: ButtonStyle(
                               shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(RoundedRectangleBorder(
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18.0),
                           ))),
                           onPressed: () {
@@ -118,14 +123,30 @@ class ProfileSettings extends StatelessWidget {
                             hintText: 'Token'),
                       ),
                       ElevatedButton(
-                              style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.0),
-                              ))),
-                              onPressed: () {},
-                              child: const Text('Migrate')),
+                          style: ButtonStyle(
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                          ))),
+                          onPressed: () {
+                            controller.migrate();
+                          },
+                          child: const Text('Migrate')),
+                      // StreamBuilder(
+                      //   stream: controller.documentStream,
+                      //   builder: (context, snapshot) {
+                      //     if (snapshot.hasError) {
+                      //       return Text('Something went wrong');
+                      //     }
+                      //     if (snapshot.connectionState ==
+                      //         ConnectionState.waiting) {
+                      //       return Text("Loading");
+                      //     }
+
+                      //     return Text(snapshot.data['user']);
+                      //   },
+                      // )
                     ],
                   ),
                 ));

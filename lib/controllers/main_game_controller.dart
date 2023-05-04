@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:remaze/models/palyer.dart';
-import 'package:remaze/services/device_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,80 +10,84 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../keys.dart';
 
 class MainGameController extends GetxController {
+  // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('d97e021d-bcde-448b-aa4b-bd4873e09973').snapshots();
+  Rx<String> secretToken = ''.obs;
   Rx<bool> showQR = false.obs;
-  Rx<String> deviceId = ''.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   var uuid = Uuid();
   late SharedPreferences pref;
-  late Rx<String> isUserRegistrated = 'none'.obs;
-  Rx<Player> player =
-      Player(uid: 'uid', userName: 'userName', deviceId: '').obs;
+  Rx<Player> player = Player(uid: 'uid', userName: 'userName').obs;
 
   TextEditingController targetQrCode = TextEditingController();
   Rx<TextEditingController> userNameController = TextEditingController().obs;
+  Rx<String> migrationTokenGen = ''.obs;
   Rx<TextEditingController> migrationToken = TextEditingController().obs;
 
   @override
   void onInit() async {
-    deviceId.value = await DeviceInfo.getDeviceId();
-    print(deviceId.value);
-    // DeviceInfo.printIps();
     pref = await SharedPreferences.getInstance();
-    // await pref.remove('isUserRegistrated');
+    // await pref.remove('secretToken');
     // await pref.remove('user');
-    await getUserDetails();
+    await authenticate();
     super.onInit();
   }
 
-  Future<void> getUserDetails() async {
-    isUserRegistrated.value = pref.getString('isUserRegistrated') ?? 'none';
-    if (isUserRegistrated.value == 'none') {
-      registerGuidUser();
-    } else if (isUserRegistrated.value == 'uid') {
-      String user = pref.getString('user') ?? 'none';
-      player = Player.fromJson(user).obs;
-      try {
-        var document = await firebaseFirestore
-            .collection('users')
-            .doc(player.value.uid)
-            .get();
-        var data = document.data();
-        Player recivedPlayer = Player.fromJson(data!['user']);
-        if (recivedPlayer.deviceId == deviceId.value) {
-          player = recivedPlayer.obs;
-          print('Auth complited');
-        } else {
-          registerGuidUser();
-        }
-        player.value.points = 783;
-      } on FirebaseException catch (error) {
-        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-          content: Text(error.code),
-          backgroundColor: Colors.red,
-        ));
-      } catch (error) {
-        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-          content: Text(error.toString()),
-          backgroundColor: Colors.red,
-        ));
-      }
+  Future<void> authenticate() async {
+    secretToken.value = pref.getString('secretToken') ?? 'none';
+    if (secretToken.value == 'none') {
+      await registerNewUser();
+    } else if (secretToken.value != 'none') {
+      await checkUserAuth();
     }
     setUserNameController();
-    update();
   }
 
-  void registerGuidUser() async {
+  Future<void> checkUserAuth() async {
+    String uid = pref.getString('uid') ?? 'none';
+    if (uid == 'none') {
+      registerNewUser();
+    }
+    try {
+      var document = await firebaseFirestore.collection('users').doc(uid).get();
+      if (!document.exists) {
+        registerNewUser();
+      }
+      var data = document.data();
+      Player recivedPlayer = Player.fromJson(data!['user']);
+      String token = data!['secretToken'];
+      if (secretToken.value != token) {
+        registerNewUser();
+      }
+      player.value = recivedPlayer;
+      update();
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+  Future<void> registerNewUser() async {
     String uid = uuid.v4();
     String part = uid.substring(30);
+    String secrTok = uuid.v4();
 
-    Player pl =
-        Player(uid: uid, userName: 'Pl-$part', deviceId: deviceId.value);
+    Player pl = Player(uid: uid, userName: 'Pl-$part');
     try {
       await firebaseFirestore.collection('users').doc(uid).set({
         'user': pl.toJson(),
+        'secretToken': secrTok,
+        'migrationToken': '',
       });
       player = pl.obs;
-      pref.setString('isUserRegistrated', 'uid');
+      pref.setString('secretToken', secrTok);
+      pref.setString('uid', uid);
       pref.setString('user', pl.toJson());
       update();
     } on FirebaseException catch (error) {
@@ -119,13 +122,14 @@ class MainGameController extends GetxController {
   }
 
   void generateMigrationToken() async {
-    print(player.value);
+    await checkUserAuth();
     String utoken = uuid.v4();
-    player.value.migrationToken = utoken;
+
     await Clipboard.setData(ClipboardData(text: utoken));
+    migrationTokenGen.value = utoken;
     try {
-      await firebaseFirestore.collection('users').doc(player.value.uid).set({
-        'user': player.value.toJson(),
+      await firebaseFirestore.collection('users').doc(player.value.uid).update({
+        'migrationToken': utoken,
       });
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
@@ -143,5 +147,73 @@ class MainGameController extends GetxController {
       backgroundColor: Color.fromARGB(255, 54, 244, 67),
     ));
     update();
+  }
+
+  void updateName() async {
+    await checkUserAuth();
+    try {
+      player.value.userName = userNameController.value.text;
+
+      await firebaseFirestore.collection('users').doc(player.value.uid).update({
+        'user': player.value.toJson(),
+      });
+      pref.setString('user', player.value.toJson());
+      update();
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text('Name updated'),
+        backgroundColor: Color.fromARGB(255, 54, 244, 67),
+      ));
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+  void migrate() async {
+    try {
+      var document = await firebaseFirestore
+          .collection('users')
+          .where('migrationToken', isEqualTo: migrationToken.value.text)
+          .get();
+      if (document.docs.isEmpty) {
+        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+          content: Text(
+              'No token in database.\nPlease generate new token on your account you want to transfer'),
+          backgroundColor: Colors.red,
+        ));
+      }
+      if (!document.docs[0].exists) {
+        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+          content: Text(
+              'No token in database.\nPlease generate new token on your account you want to transfer'),
+          backgroundColor: Colors.red,
+        ));
+      }
+      var user = document.docs[0]['user'];
+      var secT = document.docs[0]['secretToken'];
+      player.value = Player.fromJson(user);
+      pref.setString('secretToken', secT);
+      pref.setString('uid', player.value.uid);
+      pref.setString('user', user);
+      update();
+      Get.back();
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 }
