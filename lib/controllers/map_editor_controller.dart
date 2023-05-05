@@ -110,4 +110,9 @@ class MapEditorController extends GetxController {
       print(error.toString());
     }
   }
+
+  void createNewMap() {
+    _mazeMap = EditorPageMap.createStruct(TestData.createTestMap()).obs;
+    Get.toNamed(Routes.MAP_EDITOR);
+  }
 }

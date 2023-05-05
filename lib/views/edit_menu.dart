@@ -89,7 +89,7 @@ class EditMenu extends StatelessWidget {
                         textStyle: const TextStyle(
                             color: Colors.black, fontWeight: FontWeight.bold)),
                     onPressed: () {
-                      Get.toNamed(Routes.MAP_EDITOR);
+                      controller.createNewMap();
                     },
                   ),
                 ),
