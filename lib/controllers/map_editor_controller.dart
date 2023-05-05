@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:remaze/controllers/routing/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,6 +13,9 @@ import '../models/palyer.dart';
 
 class MapEditorController extends GetxController {
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+  // Stream maps = FirebaseFirestore.instance.collection('maps').snapshots();
+  Stream<QuerySnapshot> maps =
+      FirebaseFirestore.instance.collection('maps').snapshots();
   late SharedPreferences pref;
   var uuid = Uuid();
 
@@ -52,6 +56,10 @@ class MapEditorController extends GetxController {
         'author': pl!.uid,
         'map': mazeMap.toJson(),
       });
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text('Map saved'),
+        backgroundColor: Color.fromARGB(255, 54, 244, 67),
+      ));
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
         content: Text(error.code),
@@ -62,6 +70,44 @@ class MapEditorController extends GetxController {
         content: Text(error.toString()),
         backgroundColor: Colors.red,
       ));
+    }
+  }
+
+  void loadMap(String name) async {
+    try {
+      var map = await firebaseFirestore
+          .collection('maps')
+          .where('name', isEqualTo: name)
+          .get();
+      if (map.docs.isEmpty) {
+        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+          content: Text(
+              'No token in database.\nPlease generate new token on your account you want to transfer'),
+          backgroundColor: Colors.red,
+        ));
+      }
+      if (!map.docs[0].exists) {
+        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+          content: Text(
+              'No token in database.\nPlease generate new token on your account you want to transfer'),
+          backgroundColor: Colors.red,
+        ));
+      }
+      var mapJson = map.docs[0]['map'];
+      var maze = MazeMap.fromJson(mapJson);
+      _mazeMap.value = maze;
+      Get.toNamed(Routes.MAP_EDITOR);
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+      print(error.toString());
     }
   }
 }

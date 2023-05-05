@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:remaze/controllers/bindings/bindings.dart';
+import 'package:remaze/views/edit_menu.dart';
 import 'package:remaze/views/general_menu.dart';
 import 'package:remaze/views/map_editor.dart';
 import 'package:remaze/views/maze_game_act.dart';
@@ -30,6 +31,11 @@ class AppPages {
     GetPage(
       name: _Paths.SETTINGS, 
       page: () => ProfileSettings(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_MENU, 
+      page: () => EditMenu(),
+      binding: MapEditorBinding()
     ),
   ];
 }

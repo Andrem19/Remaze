@@ -69,6 +69,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/maze_preview.jpg
+    - assets/images/maze_icon.png
     - assets/images/snowflake.jpg
     - assets/images/teleport.jpg
     - assets/audio/

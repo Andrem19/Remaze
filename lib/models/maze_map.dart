@@ -155,11 +155,12 @@ class MazeMap {
   }
 
   factory MazeMap.fromMap(Map<String, dynamic> map) {
+
     return MazeMap(
-      mazeMap: List<List<Cube>>.from(
-        (map['mazeMap'] as List<List<Cube>>)
-            .map((x) => x.map((e) => Cube.fromMap(e as Map<String, dynamic>))),
-      ),
+      mazeMap: List<List<Cube>>.from(map['mazeMap'].entries.map(
+        (entry) => List<Cube>.from(
+            entry.value.entries.map((e) => Cube.fromMap(e.value))),
+      )),
       player_A: map['player_A'] != null
           ? Player.fromMap(map['player_A'] as Map<String, dynamic>)
           : null,

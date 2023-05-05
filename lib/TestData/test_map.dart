@@ -8,7 +8,7 @@ import '../models/cube.dart';
 class TestData {
   static MazeMap createTestMap() {
     int high = 35;
-    int width = 20;
+    int width = 21;
     List<List<Cube>> maze = List.generate(high, (row) {
       return List.generate(width, (col) {
             bool editA;
@@ -33,7 +33,7 @@ class TestData {
             isTeleportExit_A_Here: false,
             isTeleportDoor_B_Here: false,
             isTeleportExit_B_Here: false,
-            isBorderRight: col == 19 ? true : false,
+            isBorderRight: col == 20 ? true : false,
             isBorderDown: row == 34 ? true : false);
       });
     });
@@ -41,7 +41,7 @@ class TestData {
     maze[maze.length-1][0].isPlayer_A_Here = true;
 
     maze[0][maze[0].length - 1].is_B_START = true;
-    maze[34][0].is_A_START = true;
+    maze[maze.length-1][0].is_A_START = true;
     return MazeMap(
         mazeMap: maze,
         Player_B_Coord: Coordinates(isInit: true, row: 0, col: maze[0].length - 1),
