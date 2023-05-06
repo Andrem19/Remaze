@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:remaze/models/maze_map.dart';
 import 'package:remaze/models/palyer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -11,12 +12,14 @@ import '../keys.dart';
 
 class MainGameController extends GetxController {
   // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('d97e021d-bcde-448b-aa4b-bd4873e09973').snapshots();
+  MazeMap? currentGameMap;
   Rx<String> secretToken = ''.obs;
   Rx<bool> showQR = false.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   var uuid = Uuid();
   late SharedPreferences pref;
   Rx<Player> player = Player(uid: 'uid', userName: 'userName').obs;
+  Rx<int> points = 0.obs;
 
   TextEditingController targetQrCode = TextEditingController();
   Rx<TextEditingController> userNameController = TextEditingController().obs;
@@ -54,10 +57,11 @@ class MainGameController extends GetxController {
       }
       var data = document.data();
       Player recivedPlayer = Player.fromJson(data!['user']);
-      String token = data!['secretToken'];
+      String token = data['secretToken'];
       if (secretToken.value != token) {
         registerNewUser();
       }
+      points.value = data['points'];
       player.value = recivedPlayer;
       update();
     } on FirebaseException catch (error) {
@@ -84,6 +88,7 @@ class MainGameController extends GetxController {
         'user': pl.toJson(),
         'secretToken': secrTok,
         'migrationToken': '',
+        'points': 0,
       });
       player = pl.obs;
       pref.setString('secretToken', secrTok);

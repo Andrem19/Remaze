@@ -1,12 +1,15 @@
 import "dart:async";
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:remaze/TestData/test_map.dart';
-
-import '../TestData/editor_page.dart';
 import '../models/maze_map.dart';
 
 class GameActController extends GetxController {
+  GameActController({required this.mazeMap});
+
+  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+  int time = 600;
+  Duration clockTimer = Duration(seconds: 600);
+  Rx<String> timerText = ''.obs;
   var _timer;
   Rx<String> _yourRole = 'A'.obs;
   String get yourRole => _yourRole.value;
@@ -20,8 +23,10 @@ class GameActController extends GetxController {
   bool get teleportExit => _teleportExit.value;
 
   Rx<Direction> moveDirection = Direction.up.obs;
-  late Rx<MazeMap> _mazeMap = EditorPageMap.createStruct(TestData.createTestMap()).obs;
-  MazeMap get mazeMap => _mazeMap.value;
+  Rx<MazeMap> mazeMap;
+  // late Rx<MazeMap> _mazeMap =
+  //     EditorPageMap.createStruct(TestData.createTestMap()).obs;
+  // MazeMap get mazeMap => _mazeMap.value;
   @override
   void onInit() {
     runEngine();
@@ -30,18 +35,31 @@ class GameActController extends GetxController {
 
   @override
   void onClose() {
+    stopEngine();
+    super.onClose();
+  }
+
+  void stopEngine() {
     _timer.cancel();
     _timer = null;
-    super.onClose();
   }
 
   void runEngine() async {
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
       print(moveDirection.value.toString());
-      _mazeMap.value.MovePlayer_A(moveDirection.value);
+      mazeMap.value.MovePlayer_A(moveDirection.value);
+      time--;
+      clockTimer = Duration(seconds: time);
+      timerText.value =
+          '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
       update();
+      if (time < 1) {
+        gameEnd();
+      }
     });
   }
+
+  void gameEnd() {}
 
   void useFrozen() {
     _frozenActivate.value = true;

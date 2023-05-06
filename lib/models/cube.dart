@@ -5,6 +5,7 @@ class Cube {
   int row;
   int col;
   bool wall;
+  bool isShaddow;
   bool is_A_START;
   bool is_B_START;
   bool isCheeseHere;
@@ -23,6 +24,7 @@ class Cube {
     required this.row,
     required this.col,
     required this.wall,
+    required this.isShaddow,
     required this.is_A_START,
     required this.is_B_START,
     required this.isCheeseHere,
@@ -48,6 +50,7 @@ class Cube {
     int? row,
     int? col,
     bool? wall,
+    bool? isShaddow,
     bool? is_A_START,
     bool? is_B_START,
     bool? isCheeseHere,
@@ -67,6 +70,7 @@ class Cube {
       row: row ?? this.row,
       col: col ?? this.col,
       wall: wall ?? this.wall,
+      isShaddow: isShaddow ?? this.isShaddow,
       is_A_START: is_A_START ?? this.is_A_START,
       is_B_START: is_B_START ?? this.is_B_START,
       isCheeseHere: isCheeseHere ?? this.isCheeseHere,
@@ -74,10 +78,14 @@ class Cube {
       isPlayer_B_Here: isPlayer_B_Here ?? this.isPlayer_B_Here,
       isFrozen_A_Here: isFrozen_A_Here ?? this.isFrozen_A_Here,
       isFrozen_B_Here: isFrozen_B_Here ?? this.isFrozen_B_Here,
-      isTeleportDoor_A_Here: isTeleportDoor_A_Here ?? this.isTeleportDoor_A_Here,
-      isTeleportExit_A_Here: isTeleportExit_A_Here ?? this.isTeleportExit_A_Here,
-      isTeleportDoor_B_Here: isTeleportDoor_B_Here ?? this.isTeleportDoor_B_Here,
-      isTeleportExit_B_Here: isTeleportExit_B_Here ?? this.isTeleportExit_B_Here,
+      isTeleportDoor_A_Here:
+          isTeleportDoor_A_Here ?? this.isTeleportDoor_A_Here,
+      isTeleportExit_A_Here:
+          isTeleportExit_A_Here ?? this.isTeleportExit_A_Here,
+      isTeleportDoor_B_Here:
+          isTeleportDoor_B_Here ?? this.isTeleportDoor_B_Here,
+      isTeleportExit_B_Here:
+          isTeleportExit_B_Here ?? this.isTeleportExit_B_Here,
       editAlowd: editAlowd ?? this.editAlowd,
       isBorderRight: isBorderRight ?? this.isBorderRight,
       isBorderDown: isBorderDown ?? this.isBorderDown,
@@ -89,6 +97,7 @@ class Cube {
       'row': row,
       'col': col,
       'wall': wall,
+      'isShaddow': isShaddow,
       'is_A_START': is_A_START,
       'is_B_START': is_B_START,
       'isCheeseHere': isCheeseHere,
@@ -111,6 +120,7 @@ class Cube {
       row: map['row'] as int,
       col: map['col'] as int,
       wall: map['wall'] as bool,
+      isShaddow: map['isShaddow'] as bool,
       is_A_START: map['is_A_START'] as bool,
       is_B_START: map['is_B_START'] as bool,
       isCheeseHere: map['isCheeseHere'] as bool,
@@ -130,7 +140,8 @@ class Cube {
 
   String toJson() => json.encode(toMap());
 
-  factory Cube.fromJson(String source) => Cube.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Cube.fromJson(String source) =>
+      Cube.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -140,45 +151,46 @@ class Cube {
   @override
   bool operator ==(covariant Cube other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.row == row &&
-      other.col == col &&
-      other.wall == wall &&
-      other.is_A_START == is_A_START &&
-      other.is_B_START == is_B_START &&
-      other.isCheeseHere == isCheeseHere &&
-      other.isPlayer_A_Here == isPlayer_A_Here &&
-      other.isPlayer_B_Here == isPlayer_B_Here &&
-      other.isFrozen_A_Here == isFrozen_A_Here &&
-      other.isFrozen_B_Here == isFrozen_B_Here &&
-      other.isTeleportDoor_A_Here == isTeleportDoor_A_Here &&
-      other.isTeleportExit_A_Here == isTeleportExit_A_Here &&
-      other.isTeleportDoor_B_Here == isTeleportDoor_B_Here &&
-      other.isTeleportExit_B_Here == isTeleportExit_B_Here &&
-      other.editAlowd == editAlowd &&
-      other.isBorderRight == isBorderRight &&
-      other.isBorderDown == isBorderDown;
+
+    return other.row == row &&
+        other.col == col &&
+        other.wall == wall &&
+        other.isShaddow == isShaddow &&
+        other.is_A_START == is_A_START &&
+        other.is_B_START == is_B_START &&
+        other.isCheeseHere == isCheeseHere &&
+        other.isPlayer_A_Here == isPlayer_A_Here &&
+        other.isPlayer_B_Here == isPlayer_B_Here &&
+        other.isFrozen_A_Here == isFrozen_A_Here &&
+        other.isFrozen_B_Here == isFrozen_B_Here &&
+        other.isTeleportDoor_A_Here == isTeleportDoor_A_Here &&
+        other.isTeleportExit_A_Here == isTeleportExit_A_Here &&
+        other.isTeleportDoor_B_Here == isTeleportDoor_B_Here &&
+        other.isTeleportExit_B_Here == isTeleportExit_B_Here &&
+        other.editAlowd == editAlowd &&
+        other.isBorderRight == isBorderRight &&
+        other.isBorderDown == isBorderDown;
   }
 
   @override
   int get hashCode {
     return row.hashCode ^
-      col.hashCode ^
-      wall.hashCode ^
-      is_A_START.hashCode ^
-      is_B_START.hashCode ^
-      isCheeseHere.hashCode ^
-      isPlayer_A_Here.hashCode ^
-      isPlayer_B_Here.hashCode ^
-      isFrozen_A_Here.hashCode ^
-      isFrozen_B_Here.hashCode ^
-      isTeleportDoor_A_Here.hashCode ^
-      isTeleportExit_A_Here.hashCode ^
-      isTeleportDoor_B_Here.hashCode ^
-      isTeleportExit_B_Here.hashCode ^
-      editAlowd.hashCode ^
-      isBorderRight.hashCode ^
-      isBorderDown.hashCode;
+        col.hashCode ^
+        wall.hashCode ^
+        isShaddow.hashCode ^
+        is_A_START.hashCode ^
+        is_B_START.hashCode ^
+        isCheeseHere.hashCode ^
+        isPlayer_A_Here.hashCode ^
+        isPlayer_B_Here.hashCode ^
+        isFrozen_A_Here.hashCode ^
+        isFrozen_B_Here.hashCode ^
+        isTeleportDoor_A_Here.hashCode ^
+        isTeleportExit_A_Here.hashCode ^
+        isTeleportDoor_B_Here.hashCode ^
+        isTeleportExit_B_Here.hashCode ^
+        editAlowd.hashCode ^
+        isBorderRight.hashCode ^
+        isBorderDown.hashCode;
   }
 }

@@ -17,7 +17,12 @@ class CubeBrick extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    if (cubeProto.isShaddow) {
+      return Container(
+        color: Colors.black38,
+      );
+    } else {
+      return Container(
         decoration: BoxDecoration(
           color: cubeProto.wall
               ? Color.fromARGB(255, 43, 26, 23)
@@ -30,6 +35,8 @@ class CubeBrick extends StatelessWidget {
           ),
         ),
         child: createStuff(cubeProto));
+    }
+    
   }
 
   Container? createStuff(Cube cubeProto) {
@@ -46,6 +53,10 @@ class CubeBrick extends StatelessWidget {
           color: Colors.red,
           shape: BoxShape.circle,
         ),
+      );
+    } else if (cubeProto.isFrozen_B_Here) {
+      return Container(
+        child: Image.asset('assets/images/snowflake.jpg'),
       );
     } else {
       return null;

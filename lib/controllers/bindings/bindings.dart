@@ -1,7 +1,10 @@
 import 'package:get/get.dart';
+import 'package:remaze/controllers/game_menu_controller.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/map_editor_controller.dart';
 
+import '../../TestData/editor_page.dart';
+import '../../TestData/test_map.dart';
 import '../game_act_controller.dart';
 
 class MainScreenBinding extends Bindings {
@@ -14,7 +17,20 @@ class MainScreenBinding extends Bindings {
 class GameActBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(GameActController(), permanent: false);
+    var mainCtr = Get.find<MainGameController>();
+    if (mainCtr.currentGameMap != null) {
+      Get.put(GameActController(mazeMap: mainCtr.currentGameMap!.obs), permanent: false);
+    } else {
+      Get.put(GameActController(mazeMap: EditorPageMap.createStruct(TestData.createTestMap()).obs), permanent: false);
+    }
+    
+  }
+}
+
+class GameMenuBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(GameMenuController(), permanent: false);
   }
 }
 

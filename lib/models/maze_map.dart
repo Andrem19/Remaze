@@ -12,6 +12,7 @@ enum Direction { up, down, left, right }
 class MazeMap {
   //Should be 60x30 cube
   List<List<Cube>> mazeMap;
+  int shaddowRadius;
   Player? player_A;
   Player? player_B;
   Coordinates Player_A_Coord;
@@ -30,6 +31,7 @@ class MazeMap {
     required this.mazeMap,
     this.player_A,
     this.player_B,
+    required this.shaddowRadius,
     required this.Player_A_Coord,
     required this.Player_B_Coord,
     required this.A_FrozenInstalled,
@@ -43,6 +45,27 @@ class MazeMap {
     required this.ExitTeleport_A,
     required this.ExitTeleport_B,
   });
+
+  void countAndExecShaddow() {
+    if (shaddowRadius > 1) {
+      for (var i = 0; i < mazeMap.length; i++) {
+        for (var j = 0; j < mazeMap[0].length; j++) {
+          if (i > Player_A_Coord.row - shaddowRadius &&
+              i < Player_A_Coord.row + shaddowRadius) {
+            if (j > Player_A_Coord.col - shaddowRadius &&
+                j < Player_A_Coord.col + shaddowRadius) {
+              mazeMap[i][j].isShaddow = false;
+            }
+            else {
+              mazeMap[i][j].isShaddow = true;
+            }
+          } else {
+            mazeMap[i][j].isShaddow = true;
+          }
+        }
+      }
+    }
+  }
 
   void MovePlayer_A(Direction direction) {
     if (Player_A_Frozen != 0) {
@@ -96,8 +119,9 @@ class MazeMap {
         break;
       default:
     }
+    countAndExecShaddow();
     if (mazeMap[Player_A_Coord.row][Player_A_Coord.col].isFrozen_B_Here) {
-      Player_A_Frozen = 11;
+      Player_A_Frozen = 8;
     }
 
     if (mazeMap[Player_A_Coord.row][Player_A_Coord.col].isTeleportDoor_B_Here) {
@@ -139,6 +163,7 @@ class MazeMap {
       }),
       'player_A': player_A?.toMap(),
       'player_B': player_B?.toMap(),
+      'shaddowRadius': shaddowRadius,
       'Player_A_Coord': Player_A_Coord.toMap(),
       'Player_B_Coord': Player_B_Coord.toMap(),
       'A_FrozenInstalled': A_FrozenInstalled,
@@ -155,18 +180,18 @@ class MazeMap {
   }
 
   factory MazeMap.fromMap(Map<String, dynamic> map) {
-
     return MazeMap(
       mazeMap: List<List<Cube>>.from(map['mazeMap'].entries.map(
-        (entry) => List<Cube>.from(
-            entry.value.entries.map((e) => Cube.fromMap(e.value))),
-      )),
+            (entry) => List<Cube>.from(
+                entry.value.entries.map((e) => Cube.fromMap(e.value))),
+          )),
       player_A: map['player_A'] != null
           ? Player.fromMap(map['player_A'] as Map<String, dynamic>)
           : null,
       player_B: map['player_B'] != null
           ? Player.fromMap(map['player_B'] as Map<String, dynamic>)
           : null,
+      shaddowRadius: map['shaddowRadius'] as int,
       Player_A_Coord:
           Coordinates.fromMap(map['Player_A_Coord'] as Map<String, dynamic>),
       Player_B_Coord:

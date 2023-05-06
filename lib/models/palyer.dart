@@ -6,29 +6,26 @@ class Player {
   String userName;
   bool? is_Player_A_in_current_game;
   String? currentGame;
-  int? points;
 
   Player({
     required this.uid,
     required this.userName,
     this.is_Player_A_in_current_game,
     this.currentGame,
-    this.points,
   });
+
 
   Player copyWith({
     String? uid,
     String? userName,
     bool? is_Player_A_in_current_game,
     String? currentGame,
-    int? points,
   }) {
     return Player(
       uid: uid ?? this.uid,
       userName: userName ?? this.userName,
       is_Player_A_in_current_game: is_Player_A_in_current_game ?? this.is_Player_A_in_current_game,
       currentGame: currentGame ?? this.currentGame,
-      points: points ?? this.points,
     );
   }
 
@@ -38,7 +35,6 @@ class Player {
       'userName': userName,
       'is_Player_A_in_current_game': is_Player_A_in_current_game,
       'currentGame': currentGame,
-      'points': points,
     };
   }
 
@@ -48,7 +44,6 @@ class Player {
       userName: map['userName'] as String,
       is_Player_A_in_current_game: map['is_Player_A_in_current_game'] != null ? map['is_Player_A_in_current_game'] as bool : null,
       currentGame: map['currentGame'] != null ? map['currentGame'] as String : null,
-      points: map['points'] != null ? map['points'] as int : null,
     );
   }
 
@@ -58,7 +53,7 @@ class Player {
 
   @override
   String toString() {
-    return 'Player(uid: $uid, userName: $userName, is_Player_A_in_current_game: $is_Player_A_in_current_game, currentGame: $currentGame, points: $points)';
+    return 'Player(uid: $uid, userName: $userName, is_Player_A_in_current_game: $is_Player_A_in_current_game, currentGame: $currentGame)';
   }
 
   @override
@@ -69,8 +64,7 @@ class Player {
       other.uid == uid &&
       other.userName == userName &&
       other.is_Player_A_in_current_game == is_Player_A_in_current_game &&
-      other.currentGame == currentGame &&
-      other.points == points;
+      other.currentGame == currentGame;
   }
 
   @override
@@ -78,7 +72,6 @@ class Player {
     return uid.hashCode ^
       userName.hashCode ^
       is_Player_A_in_current_game.hashCode ^
-      currentGame.hashCode ^
-      points.hashCode;
+      currentGame.hashCode;
   }
 }

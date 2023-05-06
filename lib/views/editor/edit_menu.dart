@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/map_editor_controller.dart';
 
-import '../controllers/routing/app_pages.dart';
+import '../../controllers/routing/app_pages.dart';
 
 class EditMenu extends StatelessWidget {
   const EditMenu({super.key});

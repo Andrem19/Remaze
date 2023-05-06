@@ -17,7 +17,7 @@ class MapEditorScreen extends StatelessWidget {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
           overlays: SystemUiOverlay.values);
     }, builder: (controller) {
-      return Scaffold(
+      return controller.isLoading.value ? const CircularProgressIndicator() : Scaffold(
         body: Center(
           child: Container(
             decoration: kIsWeb

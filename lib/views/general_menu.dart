@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
-import 'package:remaze/views/maze_game_act.dart';
+import 'package:remaze/views/game/maze_game_act.dart';
 
 class GeneralMenu extends StatelessWidget {
   const GeneralMenu({super.key});
@@ -14,7 +14,7 @@ class GeneralMenu extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             actions: [
-              Center(child: Text('rank. ${controller.player.value.points ?? 0}', style: TextStyle(fontSize: 20),)),
+              Center(child: Text('rank. ${controller.points.value ?? 0}', style: TextStyle(fontSize: 20),)),
               SizedBox(width: 5,)
             ],
             title: Text(controller.player.value.userName),
@@ -33,7 +33,6 @@ class GeneralMenu extends StatelessWidget {
                           height: 250,
                           width: 250,
                           child: controller.createQR(),
-                        // child: Image.asset('assets/images/maze_preview.jpg'),
                         );
                       } else {
                         return Container(
@@ -57,7 +56,7 @@ class GeneralMenu extends StatelessWidget {
                           textStyle: const TextStyle(
                               color: Colors.black, fontWeight: FontWeight.bold)),
                       onPressed: () {
-                        Get.toNamed(Routes.GAME_ACT);
+                        Get.toNamed(Routes.START_MENU);
                       },
                     ),
                   ),

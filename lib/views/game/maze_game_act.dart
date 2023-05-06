@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
-import 'package:remaze/views/maze_map_screen.dart';
+import 'package:remaze/views/widgets/maze_map_screen.dart';
 
 class MazeGameAct extends StatelessWidget {
   MazeGameAct({super.key});

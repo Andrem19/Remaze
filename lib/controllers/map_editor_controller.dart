@@ -12,6 +12,7 @@ import '../models/maze_map.dart';
 import '../models/palyer.dart';
 
 class MapEditorController extends GetxController {
+  Rx<bool> isLoading = false.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   // Stream maps = FirebaseFirestore.instance.collection('maps').snapshots();
   Stream<QuerySnapshot> maps =
@@ -74,6 +75,7 @@ class MapEditorController extends GetxController {
   }
 
   void loadMap(String name) async {
+    isLoading.value = true;
     try {
       var map = await firebaseFirestore
           .collection('maps')
@@ -81,15 +83,13 @@ class MapEditorController extends GetxController {
           .get();
       if (map.docs.isEmpty) {
         Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-          content: Text(
-              'No token in database.\nPlease generate new token on your account you want to transfer'),
+          content: Text('Can\'t load the map'),
           backgroundColor: Colors.red,
         ));
       }
       if (!map.docs[0].exists) {
         Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-          content: Text(
-              'No token in database.\nPlease generate new token on your account you want to transfer'),
+          content: Text('Cant\' load the map'),
           backgroundColor: Colors.red,
         ));
       }
@@ -97,6 +97,7 @@ class MapEditorController extends GetxController {
       var maze = MazeMap.fromJson(mapJson);
       _mazeMap.value = maze;
       Get.toNamed(Routes.MAP_EDITOR);
+      isLoading.value = false;
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
         content: Text(error.code),

@@ -7,7 +7,7 @@ import 'package:remaze/controllers/game_act_controller.dart';
 import 'package:remaze/views/widgets/cube_widget.dart';
 import 'package:remaze/views/widgets/skills_widget.dart';
 
-import '../models/maze_map.dart';
+import '../../models/maze_map.dart';
 
 class MazeMapScreen extends StatelessWidget {
   MazeMapScreen({
@@ -43,17 +43,16 @@ class MazeMapScreen extends StatelessWidget {
             child: Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: List.generate(controller.mazeMap.mazeMap.length,
-                    (row) {
+                children:
+                    List.generate(controller.mazeMap.value.mazeMap.length, (row) {
                   return Expanded(
                     child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: List.generate(
-                            controller.mazeMap.mazeMap[row].length,
-                            (col) {
+                            controller.mazeMap.value.mazeMap[row].length, (col) {
                           return Expanded(
                             child: CubeBrick(
-                                cubeProto: controller.mazeMap.mazeMap[row]
+                                cubeProto: controller.mazeMap.value.mazeMap[row]
                                     [col]),
                           );
                         })),
@@ -62,6 +61,14 @@ class MazeMapScreen extends StatelessWidget {
               ),
             ),
           ),
+          Opacity(
+            opacity: 0.5,
+            child: Text(
+              controller.timerText.value, 
+              style: TextStyle(
+                color: Colors.red, 
+                fontSize: 20, 
+                fontWeight: FontWeight.bold),)),
           SkillsWidget()
         ],
       );
