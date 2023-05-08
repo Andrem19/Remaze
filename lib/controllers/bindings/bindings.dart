@@ -18,10 +18,10 @@ class GameActBinding extends Bindings {
   @override
   void dependencies() {
     var mainCtr = Get.find<MainGameController>();
-    if (mainCtr.currentGameMap != null) {
-      Get.put(GameActController(mazeMap: mainCtr.currentGameMap!.obs), permanent: false);
+    if (mainCtr.currentGameMap != null && mainCtr.currentMapId != null) {
+      Get.put(GameActController(mazeMap: mainCtr.currentGameMap!.obs, mapId: mainCtr.currentMapId!), permanent: false);
     } else {
-      Get.put(GameActController(mazeMap: EditorPageMap.createStruct(TestData.createTestMap()).obs), permanent: false);
+      Get.put(GameActController(mazeMap: EditorPageMap.createStruct(TestData.createTestMap()).obs, mapId: ''), permanent: false);
     }
     
   }

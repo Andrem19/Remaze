@@ -61,14 +61,20 @@ class MazeMapScreen extends StatelessWidget {
               ),
             ),
           ),
-          Opacity(
-            opacity: 0.5,
-            child: Text(
-              controller.timerText.value, 
-              style: TextStyle(
-                color: Colors.red, 
-                fontSize: 20, 
-                fontWeight: FontWeight.bold),)),
+          Row(
+            children: [
+              Opacity(
+                opacity: 0.5,
+                child: Text(
+                  controller.timerText.value, 
+                  style: TextStyle(
+                    color: Colors.red, 
+                    fontSize: 20, 
+                    fontWeight: FontWeight.bold),)),
+                    SizedBox(width: 10,),
+                    Text(controller.textMessage.value, style: TextStyle(color: Colors.red),),
+            ],
+          ),
           SkillsWidget()
         ],
       );

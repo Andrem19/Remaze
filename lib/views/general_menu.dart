@@ -50,7 +50,7 @@ class GeneralMenu extends StatelessWidget {
                   child: SizedBox(
                     width: Get.size.width / 3,
                     child: ElevatedButton(
-                      child: Text('START'),
+                      child: Text('GAME'),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey,
                           textStyle: const TextStyle(

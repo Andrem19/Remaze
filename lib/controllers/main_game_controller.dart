@@ -13,6 +13,7 @@ import '../keys.dart';
 class MainGameController extends GetxController {
   // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('d97e021d-bcde-448b-aa4b-bd4873e09973').snapshots();
   MazeMap? currentGameMap;
+  String? currentMapId;
   Rx<String> secretToken = ''.obs;
   Rx<bool> showQR = false.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;

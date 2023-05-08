@@ -53,6 +53,7 @@ class AppPages {
     GetPage(
       name: _Paths.LEADERBOARD, 
       page: () => LeaderBoardScreen(),
+      binding: GameMenuBinding()
     ),
   ];
 }

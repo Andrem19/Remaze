@@ -5,19 +5,100 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
+import 'package:remaze/models/champions.dart';
 
 import '../keys.dart';
 import '../models/cube.dart';
 import '../models/maze_map.dart';
 
 class GameMenuController extends GetxController {
+  bool isLoading = false;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+  late Rx<List<Map<String, int>>> listOfMapChampions;
+  TextEditingController queryKey = TextEditingController(text: '');
+  late Stream<QuerySnapshot> maps;
+  RxList<Champions> mapChampions =
+      [Champions(name: 'nobody', seconds: 10000)].obs;
 
-  void prepareQuestGame(String mapName) async {
+  @override
+  void onInit() {
+    maps = FirebaseFirestore.instance
+        .collection('maps')
+        .orderBy('rating', descending: false)
+        .limit(10)
+        .snapshots();
+    super.onInit();
+  }
+
+  void search(String query) async {
+    try {
+      if (query == '') {
+      maps = FirebaseFirestore.instance
+          .collection('maps')
+          .orderBy('rating', descending: false)
+          .limit(10)
+          .snapshots();
+    } else {
+      maps = FirebaseFirestore.instance
+          .collection('maps')
+          .where('name', isGreaterThanOrEqualTo: query)
+          .where('name', isLessThan: query + 'z')
+          .snapshots();
+    }
+    update();
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
+    
+  }
+
+  void loadMapChampions(String mapId) async {
+    isLoading = true;
+    try {
+      var data = await firebaseFirestore
+        .collection('maps')
+        .where('id', isEqualTo: mapId)
+        .get();
+    Map<String, dynamic> champions =
+        data.docs[0]['champions'] as Map<String, dynamic>;
+    var keysList = champions.keys.toList();
+    var valuesList = champions.values.toList();
+    mapChampions.value.clear();
+    for (var i = 0; i < keysList.length; i++) {
+      mapChampions.value
+          .add(Champions(name: keysList[i], seconds: valuesList[i] as int));
+    }
+    mapChampions.value.sort((a, b) => a.seconds.compareTo(b.seconds));
+
+    isLoading = false;
+    update();
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
+    
+  }
+
+  void prepareQuestGame(String mapId) async {
     try {
       var map = await firebaseFirestore
           .collection('maps')
-          .where('name', isEqualTo: mapName)
+          .where('id', isEqualTo: mapId)
           .get();
       if (map.docs.isEmpty) {
         Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
@@ -32,10 +113,12 @@ class GameMenuController extends GetxController {
         ));
       }
       var mapJson = map.docs[0]['map'];
+      
       var maze = MazeMap.fromJson(mapJson);
       maze.shaddowRadius = 5;
       var ctrMain = Get.find<MainGameController>();
-      ctrMain.currentGameMap = setFrozenTrap(maze);
+      ctrMain.currentGameMap = installTeleportTrap(setFrozenTrap(maze));
+      ctrMain.currentMapId = map.docs[0].id;
       Get.toNamed(Routes.GAME_ACT);
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
@@ -51,17 +134,17 @@ class GameMenuController extends GetxController {
   }
 
   MazeMap setFrozenTrap(MazeMap maze) {
-    Coordinates coord = findRandomFrozen(maze.mazeMap);
+    Coordinates coord = findRandomCoord(maze.mazeMap);
     maze.mazeMap[coord.row][coord.col].isFrozen_B_Here = true;
-    coord = findRandomFrozen(maze.mazeMap);
+    coord = findRandomCoord(maze.mazeMap);
     maze.mazeMap[coord.row][coord.col].isFrozen_B_Here = true;
     return maze;
   }
 
-  Coordinates findRandomFrozen(List<List<Cube>> maze) {
+  Coordinates findRandomCoord(List<List<Cube>> maze) {
     Coordinates randomCoord = getRandomCoordinates(maze.length, maze[0].length);
     if (maze[randomCoord.row][randomCoord.col].wall) {
-      return findRandomFrozen(maze);
+      return findRandomCoord(maze);
     } else {
       return randomCoord;
     }
@@ -72,5 +155,13 @@ class GameMenuController extends GetxController {
     int numRow = rnd.nextInt(maxRow);
     int numCol = rnd.nextInt(maxCol);
     return Coordinates(isInit: true, row: numRow, col: numCol);
+  }
+
+  MazeMap installTeleportTrap(MazeMap map) {
+    var doorCoord = findRandomCoord(map.mazeMap);
+    var exitCoord = findRandomCoord(map.mazeMap);
+    map.mazeMap[doorCoord.row][doorCoord.col].isTeleportDoor_B_Here = true;
+    map.mazeMap[doorCoord.row][doorCoord.col].isTeleportExit_B_Here = true;
+    return map;
   }
 }

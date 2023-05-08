@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -15,10 +16,11 @@ class MapEditorController extends GetxController {
   Rx<bool> isLoading = false.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   // Stream maps = FirebaseFirestore.instance.collection('maps').snapshots();
-  Stream<QuerySnapshot> maps =
-      FirebaseFirestore.instance.collection('maps').snapshots();
+  late MainGameController mainCtrlr;
+  late Stream<QuerySnapshot> maps;
   late SharedPreferences pref;
   var uuid = Uuid();
+  TextEditingController mapNameController = TextEditingController();
 
   late Rx<MazeMap> _mazeMap =
       EditorPageMap.createStruct(TestData.createTestMap()).obs;
@@ -26,6 +28,11 @@ class MapEditorController extends GetxController {
 
   @override
   void onInit() async {
+    mainCtrlr = Get.find<MainGameController>();
+    maps = FirebaseFirestore.instance
+        .collection('maps')
+        .where('author', isEqualTo: mainCtrlr.player.value.uid)
+        .snapshots();
     pref = await SharedPreferences.getInstance();
     super.onInit();
   }
@@ -49,18 +56,35 @@ class MapEditorController extends GetxController {
     if (user != 'none') {
       pl = Player.fromJson(user);
     }
-    String name = uuid.v4();
-    print(mazeMap.toMap());
+    String id = uuid.v4();
     try {
-      await firebaseFirestore.collection('maps').add({
-        'name': name,
-        'author': pl!.uid,
-        'map': mazeMap.toJson(),
-      });
-      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-        content: Text('Map saved'),
-        backgroundColor: Color.fromARGB(255, 54, 244, 67),
-      ));
+      if (mapNameController.text != '') {
+        var isNameExist = await FirebaseFirestore.instance
+            .collection('maps')
+            .where('name', isEqualTo: mapNameController.text)
+            .get();
+        if (isNameExist.size == 0) {
+          await firebaseFirestore.collection('maps').add({
+            'name': mapNameController.text,
+            'id': id,
+            'author': pl!.uid,
+            'authorName' : pl.userName,
+            'map': mazeMap.toJson(),
+            'champions' : new Map(),
+            'rating' : 0
+          });
+          Get.back();
+          Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+            content: Text('Map saved'),
+            backgroundColor: Color.fromARGB(255, 54, 244, 67),
+          ));
+        } else {
+          Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+            content: Text('Name exist'),
+            backgroundColor: Colors.red,
+          ));
+        }
+      }
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
         content: Text(error.code),

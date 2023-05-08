@@ -1,18 +1,24 @@
 import "dart:async";
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:remaze/controllers/main_game_controller.dart';
+import '../keys.dart';
 import '../models/maze_map.dart';
 
 class GameActController extends GetxController {
-  GameActController({required this.mazeMap});
+  GameActController({required this.mazeMap, required this.mapId});
 
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  int time = 600;
+  String mapId;
+  int durationOfAct = 600;
+  late int time;
   Duration clockTimer = Duration(seconds: 600);
   Rx<String> timerText = ''.obs;
   var _timer;
   Rx<String> _yourRole = 'A'.obs;
   String get yourRole => _yourRole.value;
+  Rx<String> textMessage = ''.obs;
 
   Rx<bool> showSkills = false.obs;
   Rx<bool> _frozenActivate = false.obs;
@@ -29,6 +35,7 @@ class GameActController extends GetxController {
   // MazeMap get mazeMap => _mazeMap.value;
   @override
   void onInit() {
+    time = durationOfAct;
     runEngine();
     super.onInit();
   }
@@ -40,26 +47,84 @@ class GameActController extends GetxController {
   }
 
   void stopEngine() {
-    _timer.cancel();
-    _timer = null;
+    if (_timer != null) {
+      _timer.cancel();
+      _timer = null;
+    }
   }
 
   void runEngine() async {
+    mazeMap.value.countAndExecShaddow();
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
-      print(moveDirection.value.toString());
+      // print(moveDirection.value.toString());
       mazeMap.value.MovePlayer_A(moveDirection.value);
       time--;
       clockTimer = Duration(seconds: time);
       timerText.value =
           '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+      textMessage.value = mazeMap.value.message;
       update();
-      if (time < 1) {
+      if (time < 1 || isPlayerWinn()) {
         gameEnd();
       }
     });
   }
 
-  void gameEnd() {}
+  bool isPlayerWinn() {
+    if (mazeMap.value.Player_A_Coord == mazeMap.value.Player_B_Coord) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void gameEnd() async {
+    stopEngine();
+    await countAndSaveStat();
+    Get.back();
+  }
+
+  Future<void> countAndSaveStat() async {
+    int seconds = durationOfAct - time;
+    try {
+      var cntr = Get.find<MainGameController>();
+      var document =
+          await FirebaseFirestore.instance.collection('maps').doc(mapId).get();
+      if (document.exists) {
+        var data = document.data()!['champions'] as Map<String, dynamic>;
+        bool exist = data.containsKey(cntr.player.value.userName);
+        if (exist) {
+          if (data[cntr.player.value.userName] as int < seconds) {
+            return;
+          } else {
+            await FirebaseFirestore.instance
+                .collection('maps')
+                .doc(mapId)
+                .update({
+              'champions.${cntr.player.value.userName}': seconds,
+            });
+          }
+        } else {
+          await FirebaseFirestore.instance
+                .collection('maps')
+                .doc(mapId)
+                .update({
+              'champions.${cntr.player.value.userName}': seconds,
+            });
+        }
+      }
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
 
   void useFrozen() {
     _frozenActivate.value = true;

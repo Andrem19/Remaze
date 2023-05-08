@@ -12,6 +12,7 @@ enum Direction { up, down, left, right }
 class MazeMap {
   //Should be 60x30 cube
   List<List<Cube>> mazeMap;
+  String message;
   int shaddowRadius;
   Player? player_A;
   Player? player_B;
@@ -29,6 +30,7 @@ class MazeMap {
   Coordinates ExitTeleport_B;
   MazeMap({
     required this.mazeMap,
+    required this.message,
     this.player_A,
     this.player_B,
     required this.shaddowRadius,
@@ -55,8 +57,7 @@ class MazeMap {
             if (j > Player_A_Coord.col - shaddowRadius &&
                 j < Player_A_Coord.col + shaddowRadius) {
               mazeMap[i][j].isShaddow = false;
-            }
-            else {
+            } else {
               mazeMap[i][j].isShaddow = true;
             }
           } else {
@@ -72,6 +73,7 @@ class MazeMap {
       Player_A_Frozen -= 1;
       return;
     }
+    message = '';
     switch (direction) {
       case Direction.up:
         if (Player_A_Coord.row != 0) {
@@ -122,12 +124,14 @@ class MazeMap {
     countAndExecShaddow();
     if (mazeMap[Player_A_Coord.row][Player_A_Coord.col].isFrozen_B_Here) {
       Player_A_Frozen = 8;
+      message = 'Player was frozen';
     }
 
     if (mazeMap[Player_A_Coord.row][Player_A_Coord.col].isTeleportDoor_B_Here) {
       if (ExitTeleport_B.isInit) {
         mazeMap[Player_A_Coord.row][Player_A_Coord.col].isPlayer_A_Here = false;
         mazeMap[ExitTeleport_B.row][ExitTeleport_B.col].isPlayer_A_Here = true;
+        message = 'Teleport trap';
       }
     }
   }
@@ -163,6 +167,7 @@ class MazeMap {
       }),
       'player_A': player_A?.toMap(),
       'player_B': player_B?.toMap(),
+      'message': message,
       'shaddowRadius': shaddowRadius,
       'Player_A_Coord': Player_A_Coord.toMap(),
       'Player_B_Coord': Player_B_Coord.toMap(),
@@ -192,6 +197,7 @@ class MazeMap {
           ? Player.fromMap(map['player_B'] as Map<String, dynamic>)
           : null,
       shaddowRadius: map['shaddowRadius'] as int,
+      message: map['message'] as String,
       Player_A_Coord:
           Coordinates.fromMap(map['Player_A_Coord'] as Map<String, dynamic>),
       Player_B_Coord:

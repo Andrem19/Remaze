@@ -70,7 +70,7 @@ class EditMenu extends StatelessWidget {
                           child: Image.asset('assets/images/maze_icon.png',
                               fit: BoxFit.cover),
                         ),
-                        title: Text(data['name'].toString().substring(0, 20)),
+                        title: Text(data['name'].toString()),
                         subtitle:
                             Text(data['author'].toString().substring(0, 20)),
                       );

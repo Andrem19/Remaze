@@ -41,6 +41,11 @@ class CubeBrick extends StatelessWidget {
 
   Container? createStuff(Cube cubeProto) {
     if (cubeProto.isPlayer_A_Here) {
+      if (cubeProto.isFrozen_B_Here) {
+        return Container(
+        child: Image.asset('assets/images/snowflake.jpg'),
+      );
+      }
       return Container(
         decoration: new BoxDecoration(
           color: Colors.green,
@@ -53,10 +58,6 @@ class CubeBrick extends StatelessWidget {
           color: Colors.red,
           shape: BoxShape.circle,
         ),
-      );
-    } else if (cubeProto.isFrozen_B_Here) {
-      return Container(
-        child: Image.asset('assets/images/snowflake.jpg'),
       );
     } else {
       return null;
