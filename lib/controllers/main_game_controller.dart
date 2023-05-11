@@ -26,6 +26,7 @@ class MainGameController extends GetxController {
   Rx<TextEditingController> userNameController = TextEditingController().obs;
   Rx<String> migrationTokenGen = ''.obs;
   Rx<TextEditingController> migrationToken = TextEditingController().obs;
+  TextEditingController playerSearch = TextEditingController(text: '');
 
   @override
   void onInit() async {

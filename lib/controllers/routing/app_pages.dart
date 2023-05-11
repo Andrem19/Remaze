@@ -7,7 +7,6 @@ import 'package:remaze/views/editor/map_editor.dart';
 import 'package:remaze/views/game/maze_game_act.dart';
 import 'package:remaze/views/leaderboard_screen.dart';
 import 'package:remaze/views/profile_settings.dart';
-import 'package:remaze/views/game/start_menu.dart';
 
 part 'app_routes.dart';
 
@@ -39,11 +38,6 @@ class AppPages {
       name: _Paths.EDIT_MENU, 
       page: () => EditMenu(),
       binding: MapEditorBinding()
-    ),
-    GetPage(
-      name: _Paths.START_MENU, 
-      page: () => StartMenu(),
-      binding: GameMenuBinding()
     ),
     GetPage(
       name: _Paths.QUESTS, 

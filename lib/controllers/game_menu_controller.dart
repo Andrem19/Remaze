@@ -16,6 +16,7 @@ class GameMenuController extends GetxController {
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   late Rx<List<Map<String, int>>> listOfMapChampions;
   TextEditingController queryKey = TextEditingController(text: '');
+  
   late Stream<QuerySnapshot> maps;
   RxList<Champions> mapChampions =
       [Champions(name: 'nobody', seconds: 10000)].obs;
