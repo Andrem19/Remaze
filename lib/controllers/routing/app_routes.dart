@@ -10,6 +10,9 @@ abstract class Routes {
   static const EDIT_MENU = _Paths.EDIT_MENU;
   static const SETTINGS = _Paths.SETTINGS;
   static const LEADERBOARD = _Paths.LEADERBOARD;
+  static const SPLASH_SCREEN = _Paths.SPLASH_SCREEN;
+  static const GAME_SPLASH_SCREEN = _Paths.GAME_SPLASH_SCREEN;
+  static const QR_SCANNER = _Paths.QR_SCANNER;
 }
 
 abstract class _Paths {
@@ -20,4 +23,7 @@ abstract class _Paths {
   static const EDIT_MENU = "/edit_menu";
   static const SETTINGS = "/profile_settings";
   static const LEADERBOARD = "/leaderboard";
+  static const SPLASH_SCREEN = "/splash_screen";
+  static const GAME_SPLASH_SCREEN = "/game_splash_screen";
+  static const QR_SCANNER = "/qr_scanner";
 }

@@ -7,13 +7,14 @@ import 'package:remaze/models/palyer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import '../AppOpenAdManager.dart';
 import '../keys.dart';
 
-class MainGameController extends GetxController {
+class MainGameController extends GetxController with WidgetsBindingObserver {
   // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('d97e021d-bcde-448b-aa4b-bd4873e09973').snapshots();
   MazeMap? currentGameMap;
   String? currentMapId;
+  String? currentMapName;
   Rx<String> secretToken = ''.obs;
   Rx<bool> showQR = false.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
@@ -28,14 +29,41 @@ class MainGameController extends GetxController {
   Rx<TextEditingController> migrationToken = TextEditingController().obs;
   TextEditingController playerSearch = TextEditingController(text: '');
 
+  AppOpenAdManager appOpenAdManager = AppOpenAdManager();
+  bool isPaused = false;
+
+
   @override
   void onInit() async {
+    appOpenAdManager.loadAd();
+    WidgetsBinding.instance.addObserver(this);
     pref = await SharedPreferences.getInstance();
     // await pref.remove('secretToken');
     // await pref.remove('user');
     await authenticate();
     super.onInit();
   }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if(state == AppLifecycleState.paused){
+      isPaused = true;
+    }
+    if(state == AppLifecycleState.resumed && isPaused){
+      print("RESUME -------");
+      appOpenAdManager.showAdIfAvailable();
+      isPaused = false;
+    }
+  }
+  
 
   Future<void> authenticate() async {
     secretToken.value = pref.getString('secretToken') ?? 'none';
@@ -112,7 +140,7 @@ class MainGameController extends GetxController {
 
   QrImage createQR() {
     return QrImage(
-      data: player.value.uid,
+      data: player.value.userName,
       version: QrVersions.auto,
       size: 250.0,
     );

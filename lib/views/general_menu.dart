@@ -5,6 +5,8 @@ import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
 import 'package:remaze/views/game/maze_game_act.dart';
 
+import '../AppOpenAdManager.dart';
+
 class GeneralMenu extends StatelessWidget {
   const GeneralMenu({super.key});
 
@@ -66,6 +68,11 @@ class GeneralMenu extends StatelessWidget {
                           decoration: InputDecoration(
                               labelText: 'Player Name',
                               prefixIcon: Icon(Icons.search),
+                              suffixIcon: InkWell(
+                                  onTap: () {
+                                    Get.toNamed(Routes.QR_SCANNER);
+                                  },
+                                  child: Icon(Icons.qr_code_2_sharp)),
                               hintMaxLines: 1,
                               border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -99,7 +106,8 @@ class GeneralMenu extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey,
                           textStyle: const TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold)),
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Get.toNamed(Routes.QUESTS);
                       },
@@ -115,7 +123,8 @@ class GeneralMenu extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey,
                           textStyle: const TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold)),
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Get.toNamed(Routes.QUESTS);
                       },
@@ -131,7 +140,8 @@ class GeneralMenu extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey,
                           textStyle: const TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold)),
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
                       onPressed: () {},
                     ),
                   ),
@@ -145,7 +155,8 @@ class GeneralMenu extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey,
                           textStyle: const TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold)),
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Get.toNamed(Routes.EDIT_MENU);
                       },
@@ -161,7 +172,8 @@ class GeneralMenu extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey,
                           textStyle: const TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold)),
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Get.toNamed(Routes.SETTINGS);
                       },

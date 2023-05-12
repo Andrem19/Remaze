@@ -2,11 +2,15 @@ import 'package:get/get.dart';
 import 'package:remaze/controllers/bindings/bindings.dart';
 import 'package:remaze/views/editor/edit_menu.dart';
 import 'package:remaze/views/game/quests.dart';
+import 'package:remaze/views/game_splash_screen.dart';
 import 'package:remaze/views/general_menu.dart';
 import 'package:remaze/views/editor/map_editor.dart';
 import 'package:remaze/views/game/maze_game_act.dart';
 import 'package:remaze/views/leaderboard_screen.dart';
 import 'package:remaze/views/profile_settings.dart';
+import 'package:remaze/views/widgets/qr_scanner.dart';
+
+import '../../splash_screen.dart';
 
 part 'app_routes.dart';
 
@@ -48,6 +52,19 @@ class AppPages {
       name: _Paths.LEADERBOARD, 
       page: () => LeaderBoardScreen(),
       binding: GameMenuBinding()
+    ),
+    GetPage(
+      name: _Paths.SPLASH_SCREEN, 
+      page: () => SplashScreen(),
+    ),
+    GetPage(
+      name: _Paths.GAME_SPLASH_SCREEN, 
+      page: () => GameSplashScreen(),
+    ),
+    GetPage(
+      name: _Paths.QR_SCANNER, 
+      page: () => QRViewExample(),
+      binding: QrControllerBinding()
     ),
   ];
 }

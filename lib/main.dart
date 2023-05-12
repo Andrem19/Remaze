@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'controllers/bindings/bindings.dart';
 import 'controllers/routing/app_pages.dart';
@@ -9,9 +10,12 @@ import 'keys.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await MobileAds.instance
+      .updateRequestConfiguration(RequestConfiguration(testDeviceIds: ['1db7a663-dd6d-49a9-896f-921520fb1c62']));
   runApp(const MyApp());
 }
 
