@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,13 +13,13 @@ class FightController extends GetxController {
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   MainGameController mainCtrl = Get.find<MainGameController>();
   bool startButtonShow = false;
+  var _timer;
 
   @override
   void onInit() {
+    _adPlayerToQueueOrFindRival();
     super.onInit();
   }
-
-  void searchRival() {}
 
   void _adPlayerToQueueOrFindRival() async {
     var playerList = await FirebaseFirestore.instance
@@ -37,13 +38,33 @@ class FightController extends GetxController {
         'Player_B_name': mainCtrl.player.value.uid,
         'gameStatus': 'waiting'
       });
-      startButtonShow = true;
+      startGameStream(playerList.docs[0].id);
     }
   }
 
+  @override
+  void onClose() {
+    // TODO: implement onClose
+    super.onClose();
+  }
+
   void startGameStream(String id) {
-    var snapshots = FirebaseFirestore.instance.collection('gameList').doc(id).snapshots();
-    
+    var snapshots =
+        FirebaseFirestore.instance.collection('gameList').doc(id).snapshots();
+    snapshots.listen((snapshot) {
+      if (snapshot.exists) {
+        var data = snapshot.data();
+        String gameStatus = data!['gameStatus'];
+        if (gameStatus == 'waiting') {
+          startButtonShow = true;
+        }
+        if (gameStatus == 'playing') {
+          // Get.toNamed(page);
+        }
+      } else {
+        print('Document does not exist');
+      }
+    });
   }
 
   Future<bool> _addPlayerToList() async {
