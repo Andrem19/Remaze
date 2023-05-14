@@ -13,6 +13,8 @@ abstract class Routes {
   static const SPLASH_SCREEN = _Paths.SPLASH_SCREEN;
   static const GAME_SPLASH_SCREEN = _Paths.GAME_SPLASH_SCREEN;
   static const QR_SCANNER = _Paths.QR_SCANNER;
+  static const RIVAL_SEARCH = _Paths.RIVAL_SEARCH;
+  static const ACT_PLAYER_ACREEN = _Paths.ACT_PLAYER_SCREEN;
 }
 
 abstract class _Paths {
@@ -26,4 +28,6 @@ abstract class _Paths {
   static const SPLASH_SCREEN = "/splash_screen";
   static const GAME_SPLASH_SCREEN = "/game_splash_screen";
   static const QR_SCANNER = "/qr_scanner";
+  static const RIVAL_SEARCH = "/rival_search";
+  static const ACT_PLAYER_SCREEN = "/act_player_screen";
 }

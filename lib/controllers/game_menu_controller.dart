@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +31,7 @@ class GameMenuController extends GetxController {
         .snapshots();
     super.onInit();
   }
+  
 
   void search(String query) async {
     try {
@@ -165,4 +167,5 @@ class GameMenuController extends GetxController {
     map.mazeMap[doorCoord.row][doorCoord.col].isTeleportExit_B_Here = true;
     return map;
   }
+  
 }

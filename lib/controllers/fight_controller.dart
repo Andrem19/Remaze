@@ -5,133 +5,139 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
+import 'package:remaze/controllers/routing/app_pages.dart';
 import 'package:remaze/models/maze_map.dart';
+import 'package:remaze/views/game/multiplayer_game_act.dart';
+import 'dart:isolate';
 
 import '../keys.dart';
+import '../services/converter.dart';
 
 class FightController extends GetxController {
+  late Rx<MazeMap> mazeMap;
+  late Stream<DocumentSnapshot<Map<String, dynamic>>> snapshots;
+  late StreamSubscription<DocumentSnapshot<Map<String, dynamic>>> listner;
+  Rx<String> gameId = ''.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   MainGameController mainCtrl = Get.find<MainGameController>();
-  bool startButtonShow = false;
+
+  Rx<bool> showSkills = false.obs;
+  late Direction B_direction;
+  late bool B_frozen;
+  late bool B_door;
+  late bool B_exit;
+  Rx<bool> _frozenActivate = false.obs;
+  Rx<bool> _teleportDoor = false.obs;
+  Rx<bool> _teleportExit = false.obs;
+  bool get frozenActivate => _frozenActivate.value;
+  bool get teleportDoor => _teleportDoor.value;
+  bool get teleportExit => _teleportExit.value;
+
+  Rx<String> _yourRole = 'A'.obs;
+  String get yourRole => _yourRole.value;
+  Rx<String> textMessage = ''.obs;
+
+  Rx<Direction> moveDirection = Direction.up.obs;
   var _timer;
 
   @override
   void onInit() {
-    _adPlayerToQueueOrFindRival();
+    gameEngine();
     super.onInit();
-  }
-
-  void _adPlayerToQueueOrFindRival() async {
-    var playerList = await FirebaseFirestore.instance
-        .collection('gameList')
-        .where('gameStatus', isEqualTo: 'searching')
-        .get();
-
-    if (playerList.docs.length < 1) {
-      _addPlayerToList();
-    } else {
-      await FirebaseFirestore.instance
-          .collection('gameList')
-          .doc(playerList.docs[0].id)
-          .update({
-        'Player_B_uid': mainCtrl.player.value.uid,
-        'Player_B_name': mainCtrl.player.value.uid,
-        'gameStatus': 'waiting'
-      });
-      startGameStream(playerList.docs[0].id);
-    }
   }
 
   @override
   void onClose() {
-    // TODO: implement onClose
+    if (_timer != null) {
+      _timer.cancel();
+      _timer = null;
+    }
+    listner.cancel();
     super.onClose();
   }
 
-  void startGameStream(String id) {
-    var snapshots =
-        FirebaseFirestore.instance.collection('gameList').doc(id).snapshots();
-    snapshots.listen((snapshot) {
-      if (snapshot.exists) {
-        var data = snapshot.data();
-        String gameStatus = data!['gameStatus'];
-        if (gameStatus == 'waiting') {
-          startButtonShow = true;
-        }
-        if (gameStatus == 'playing') {
-          // Get.toNamed(page);
-        }
-      } else {
-        print('Document does not exist');
+  void setUpVars() {
+    mazeMap = mainCtrl.currentGameMap!.obs;
+    gameId.value = mainCtrl.currentmultiplayerGameId;
+    _yourRole = mainCtrl.YourCurrentRole;
+  }
+
+  void gameEngine() async {
+    setUpVars();
+    snapshots = FirebaseFirestore.instance
+        .collection('gameList')
+        .doc(gameId.value)
+        .snapshots();
+    listner = snapshots.listen((data) {
+      mazeMap.value = MazeMap.fromJson(data['Map']);
+      B_direction = Conv.strToDir(data['Pl_B_Direction']);
+      B_frozen = data['Pl_B_Frozen'];
+      B_door = data['Pl_B_Door'];
+      B_exit = data['Pl_B_Exit'];
+      if (_yourRole == 'B') {
+        mazeMap.value.reverse();
       }
+    });
+    // Isolate.spawn();
+    _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
+      if (_yourRole.value == 'A') {
+        mazeMap.value.MovePlayer_A(moveDirection.value);
+        mazeMap.value.countAndExecShaddow_A();
+        mazeMap.value.MovePlayer_B(B_direction);
+        if (B_frozen) {
+          mazeMap.value.instalFrozen_B();
+        }
+        if (B_door) {
+          mazeMap.value.instalDoor_B();
+        }
+        if (B_exit) {
+          mazeMap.value.instalExit_B();
+        }
+        firebaseFirestore.collection('gameList').doc(gameId.value).update({
+          'Map': mazeMap.value.toJson(),
+        });
+      } else if (_yourRole.value == 'B') {
+        mazeMap.value.countAndExecShaddow_B();
+        updateDirection();
+      }
+      textMessage.value = mazeMap.value.message_A;
+      update();
     });
   }
 
-  Future<bool> _addPlayerToList() async {
-    bool res = await chooseRandomMap();
-    if (res) {
-      try {
-        var doc = await firebaseFirestore.collection('gameList').add({
-          'MapName': mainCtrl.currentMapName,
-          'Map_Id': mainCtrl.currentMapId,
-          'Map': mainCtrl.currentGameMap?.toJson(),
-          'Player_A_uid': mainCtrl.player.value.uid,
-          'Player_A_Name': mainCtrl.player.value.userName,
-          'Player_A_ready': false,
-          'Player_B_uid': '',
-          'Player_B_Name': '',
-          'Player_B_ready': false,
-          'gameStatus': 'searching',
-        });
-        startGameStream(doc.id);
-        return true;
-      } on FirebaseException catch (error) {
-        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-          content: Text(error.code),
-          backgroundColor: Colors.red,
-        ));
-        return false;
-      } catch (error) {
-        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-          content: Text(error.toString()),
-          backgroundColor: Colors.red,
-        ));
-        return false;
-      }
-    }
-    return false;
+  void updateDirection() async {
+    await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+      'Pl_B_Direction': Conv.dirToStr(moveDirection.value),
+    });
   }
 
-  Future<bool> chooseRandomMap() async {
-    try {
-      var maps = await FirebaseFirestore.instance
-          .collection('maps')
-          .orderBy('rating', descending: false)
-          .limit(10)
-          .get();
-      int randomInt = Random().nextInt(maps.docs.length);
-      if (maps.docs[randomInt].exists) {
-        mainCtrl.currentMapId = maps.docs[randomInt]['id'];
-        MazeMap map = MazeMap.fromJson(maps.docs[randomInt]['map']);
-        mainCtrl.currentMapName = maps.docs[randomInt]['name'];
-        return true;
-      } else {
-        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-          content: Text('Something went wrong'),
-          backgroundColor: Colors.red,
-        ));
-      }
-    } on FirebaseException catch (error) {
-      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-        content: Text(error.code),
-        backgroundColor: Colors.red,
-      ));
-    } catch (error) {
-      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-        content: Text(error.toString()),
-        backgroundColor: Colors.red,
-      ));
+  void setUpFrozen() async {
+    if (_yourRole == 'A') {
+      mazeMap.value.instalFrozen_A();
+    } else {
+      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+        'Pl_B_Frozen': true,
+      });
     }
-    return false;
+  }
+
+  void setUpDoor() async {
+    if (_yourRole == 'A') {
+      mazeMap.value.instalDoor_A();
+    } else {
+      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+        'Pl_B_Door': true,
+      });
+    }
+  }
+
+  void setUpExit() async {
+    if (_yourRole == 'A') {
+      mazeMap.value.instalExit_A();
+    } else {
+      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+        'Pl_B_Exit': true,
+      });
+    }
   }
 }

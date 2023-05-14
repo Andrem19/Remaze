@@ -8,9 +8,9 @@ import 'package:remaze/controllers/game_act_controller.dart';
 import 'package:remaze/controllers/map_editor_controller.dart';
 import 'package:remaze/models/cube.dart';
 
-class CubeBrick extends StatelessWidget {
+class CubeBrick_B extends StatelessWidget {
   Cube cubeProto;
-  CubeBrick({
+  CubeBrick_B({
     Key? key,
     required this.cubeProto,
   }) : super(key: key);
@@ -26,7 +26,7 @@ class CubeBrick extends StatelessWidget {
         decoration: BoxDecoration(
           color: cubeProto.wall
               ? Color.fromARGB(255, 43, 26, 23)
-              : (cubeProto.is_A_START || cubeProto.is_B_START)
+              : (cubeProto.is_B_START || cubeProto.is_A_START)
                   ? Colors.yellow
                   : Colors.white30,
           border: Border.all(
@@ -40,8 +40,8 @@ class CubeBrick extends StatelessWidget {
   }
 
   Container? createStuff(Cube cubeProto) {
-    if (cubeProto.isPlayer_A_Here) {
-      if (cubeProto.isFrozen_B_Here) {
+    if (cubeProto.isPlayer_B_Here) {
+      if (cubeProto.isFrozen_A_Here) {
         return Container(
         child: Image.asset('assets/images/snowflake.jpg'),
       );
@@ -52,7 +52,7 @@ class CubeBrick extends StatelessWidget {
           shape: BoxShape.circle,
         ),
       );
-    } else if (cubeProto.isPlayer_B_Here) {
+    } else if (cubeProto.isPlayer_A_Here) {
       return Container(
         decoration: new BoxDecoration(
           color: Colors.red,
@@ -60,18 +60,18 @@ class CubeBrick extends StatelessWidget {
         ),
       );
     } else {
-      if (!cubeProto.isShaddow && !cubeProto.isPlayer_A_Here) {
-        if (cubeProto.isFrozen_A_Here) {
+      if (!cubeProto.isShaddow && !cubeProto.isPlayer_B_Here) {
+        if (cubeProto.isFrozen_B_Here) {
           return Container(
             child: Image.asset('assets/images/snowflake.jpg'),
             );
-        } else if (cubeProto.isTeleportDoor_A_Here) {
+        } else if (cubeProto.isTeleportDoor_B_Here) {
           return Container(
             child: Opacity(
               opacity: 0.5,
               child: Image.asset('assets/images/teleport.jpg')),
             );
-        } else if (cubeProto.isTeleportExit_A_Here) {
+        } else if (cubeProto.isTeleportExit_B_Here) {
           return Container(
             child: Opacity(
               opacity: 0.9,

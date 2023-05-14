@@ -54,15 +54,17 @@ class GameActController extends GetxController {
   }
 
   void runEngine() async {
-    mazeMap.value.countAndExecShaddow();
+    mazeMap.value.countAndExecShaddow_A();
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
       // print(moveDirection.value.toString());
+      
       mazeMap.value.MovePlayer_A(moveDirection.value);
+      mazeMap.value.countAndExecShaddow_A();
       time--;
       clockTimer = Duration(seconds: time);
       timerText.value =
           '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
-      textMessage.value = mazeMap.value.message;
+      textMessage.value = mazeMap.value.message_A;
       update();
       if (time < 1 || isPlayerWinn()) {
         gameEnd();

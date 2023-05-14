@@ -122,17 +122,20 @@ class ProfileSettings extends StatelessWidget {
                             iconData: Icons.swap_horiz,
                             hintText: 'Token'),
                       ),
-                      ElevatedButton(
-                          style: ButtonStyle(
-                              shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
-                          ))),
-                          onPressed: () {
-                            controller.migrate();
-                          },
-                          child: const Text('Migrate')),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                            ))),
+                            onPressed: () {
+                              controller.migrate();
+                            },
+                            child: const Text('Migrate')),
+                      ),
                       // StreamBuilder(
                       //   stream: controller.documentStream,
                       //   builder: (context, snapshot) {

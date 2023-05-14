@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -15,7 +16,9 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
   MazeMap? currentGameMap;
   String? currentMapId;
   String? currentMapName;
+  String currentmultiplayerGameId = '';
   Rx<String> secretToken = ''.obs;
+  Rx<String> YourCurrentRole = 'A'.obs;
   Rx<bool> showQR = false.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   var uuid = Uuid();
@@ -32,11 +35,12 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
 
-
   @override
   void onInit() async {
-    appOpenAdManager.loadAd();
-    WidgetsBinding.instance.addObserver(this);
+    if (!kIsWeb) {
+      appOpenAdManager.loadAd();
+      WidgetsBinding.instance.addObserver(this);
+    }
     pref = await SharedPreferences.getInstance();
     // await pref.remove('secretToken');
     // await pref.remove('user');
@@ -54,16 +58,15 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if(state == AppLifecycleState.paused){
+    if (state == AppLifecycleState.paused) {
       isPaused = true;
     }
-    if(state == AppLifecycleState.resumed && isPaused){
+    if (state == AppLifecycleState.resumed && isPaused) {
       print("RESUME -------");
       appOpenAdManager.showAdIfAvailable();
       isPaused = false;
     }
   }
-  
 
   Future<void> authenticate() async {
     secretToken.value = pref.getString('secretToken') ?? 'none';

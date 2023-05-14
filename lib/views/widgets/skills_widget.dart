@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:remaze/controllers/fight_controller.dart';
 
 import 'package:remaze/controllers/game_act_controller.dart';
 import 'package:remaze/views/widgets/skill_element.dart';
@@ -13,7 +14,7 @@ class SkillsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<GameActController>(
+    return GetBuilder<FightController>(
       builder: (controller) {
         if (controller.showSkills.value) {
           return Container(
@@ -29,7 +30,7 @@ class SkillsWidget extends StatelessWidget {
                   children: [
                     InkWell(
                         onTap: () {
-                          controller.useFrozen();
+                          controller.setUpFrozen();
                         },
                         child: SkillElement(
                           activate: controller.frozenActivate,
@@ -38,7 +39,7 @@ class SkillsWidget extends StatelessWidget {
                         )),
                     InkWell(
                         onTap: () {
-                          controller.doorTeleport();
+                          controller.setUpDoor();
                         },
                         child: SkillElement(
                           activate: controller.teleportDoor,
@@ -47,7 +48,7 @@ class SkillsWidget extends StatelessWidget {
                         )),
                     InkWell(
                         onTap: () {
-                          controller.exitTeleport();
+                          controller.setUpExit();
                         },
                         child: SkillElement(
                           activate: controller.teleportExit,

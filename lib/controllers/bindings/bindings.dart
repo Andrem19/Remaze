@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
+import 'package:remaze/controllers/fight_controller.dart';
 import 'package:remaze/controllers/game_menu_controller.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/map_editor_controller.dart';
 import 'package:remaze/controllers/qr_controller.dart';
+import 'package:remaze/controllers/search_rival_controller.dart';
 
 import '../../TestData/editor_page.dart';
 import '../../TestData/test_map.dart';
@@ -48,3 +50,16 @@ class QrControllerBinding extends Bindings {
     Get.put(QrController(), permanent: false);
   }
 }
+class FightControllerBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(FightController(), permanent: false);
+  }
+}
+class SearchRivalBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(SearchRivalController(), permanent: false);
+  }
+}
+
