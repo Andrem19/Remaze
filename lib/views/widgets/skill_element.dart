@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:remaze/controllers/fight_controller.dart';
 
 import 'package:remaze/controllers/game_act_controller.dart';
 
@@ -18,7 +19,7 @@ class SkillElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<GameActController>(builder: (controller) {
+    return GetBuilder<FightController>(builder: (controller) {
       return Opacity(
         opacity: activate ? 0.4 : 0.7,
         child: Stack(

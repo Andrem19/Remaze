@@ -46,7 +46,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
     // await pref.remove('user');
     await authenticate();
     super.onInit();
-  }
+  }  
 
   @override
   void dispose() {
@@ -66,6 +66,13 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
       appOpenAdManager.showAdIfAvailable();
       isPaused = false;
     }
+  }
+  void refreshUserState() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String uid = pref.getString('uid') ?? 'none';
+    var document = await firebaseFirestore.collection('users').doc(uid).get();
+    var me = document.data();
+    points.value = me!['points'] as int;
   }
 
   Future<void> authenticate() async {

@@ -196,6 +196,7 @@ class SearchRivalController extends GetxController {
         mainCtrl.currentMapId = maps.docs[randomInt]['id'];
         mainCtrl.currentGameMap = MazeMap.fromJson(maps.docs[randomInt]['map']);
         mainCtrl.currentMapName = maps.docs[randomInt]['name'];
+        prepareMapToGame();
         return true;
       } else {
         Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
@@ -215,5 +216,9 @@ class SearchRivalController extends GetxController {
       ));
     }
     return false;
+  }
+
+  void prepareMapToGame() {
+    mainCtrl.currentGameMap!.shaddowRadius = 5;
   }
 }

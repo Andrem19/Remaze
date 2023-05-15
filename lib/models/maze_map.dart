@@ -85,9 +85,7 @@ class MazeMap {
     mazeMap = mazeMap.reversed.toList();
     for (var i = 0; i < mazeMap.length; i++) {
       mazeMap[i] = mazeMap[i].reversed.toList();
-      for (var j = 0; j < mazeMap[i].length; j++) {
-        
-      }
+      for (var j = 0; j < mazeMap[i].length; j++) {}
     }
   }
 
@@ -266,10 +264,21 @@ class MazeMap {
     }
   }
 
+  String checkTheFinish() {
+    if (Player_A_Coord.row == 0 && Player_A_Coord.col == mazeMap[0].length-1) {
+      return 'A';
+    }
+    if (Player_B_Coord.row == mazeMap.length-1 && Player_B_Coord.col == 0) {
+      return 'B';
+    }
+    return 'N';
+  }
+
   void instalFrozen_A() {
     if (!A_FrozenInstalled) {
       mazeMap[Player_A_Coord.row][Player_A_Coord.col].isFrozen_A_Here = true;
       A_FrozenInstalled = true;
+      message_A = 'Frozen trap instaled';
     }
   }
 
@@ -278,6 +287,7 @@ class MazeMap {
       mazeMap[Player_A_Coord.row][Player_A_Coord.col].isTeleportDoor_A_Here =
           true;
       A_DoorInstalled = true;
+      message_A = 'Door trap instaled';
     }
   }
 
@@ -286,6 +296,9 @@ class MazeMap {
       mazeMap[Player_A_Coord.row][Player_A_Coord.col].isTeleportExit_A_Here =
           true;
       A_ExitInstalled = true;
+      ExitTeleport_A = Coordinates(
+          isInit: true, row: Player_A_Coord.row, col: Player_A_Coord.col);
+      message_A = 'Exit trap instaled';
     } else {
       message_A = 'first you should to install the door';
     }
@@ -295,6 +308,7 @@ class MazeMap {
     if (!B_FrozenInstalled) {
       mazeMap[Player_B_Coord.row][Player_B_Coord.col].isFrozen_B_Here = true;
       B_FrozenInstalled = true;
+      message_B = 'Frozen trap instaled';
     }
   }
 
@@ -303,6 +317,7 @@ class MazeMap {
       mazeMap[Player_B_Coord.row][Player_B_Coord.col].isTeleportDoor_B_Here =
           true;
       B_DoorInstalled = true;
+      message_B = 'Door trap instaled';
     }
   }
 
@@ -311,6 +326,9 @@ class MazeMap {
       mazeMap[Player_B_Coord.row][Player_B_Coord.col].isTeleportExit_B_Here =
           true;
       B_ExitInstalled = true;
+      ExitTeleport_B = Coordinates(
+          isInit: true, row: Player_B_Coord.row, col: Player_B_Coord.col);
+      message_B = 'Exit trap instaled';
     } else {
       message_B = 'first you should to install the door';
     }

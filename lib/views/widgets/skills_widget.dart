@@ -61,7 +61,7 @@ class SkillsWidget extends StatelessWidget {
             ),
           );
         } else {
-          return SizedBox();
+          return const SizedBox();
         }
       },
     );

@@ -8,6 +8,7 @@ import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
 import 'package:remaze/models/maze_map.dart';
 import 'package:remaze/views/game/multiplayer_game_act.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:isolate';
 
 import '../keys.dart';
@@ -47,13 +48,60 @@ class FightController extends GetxController {
   }
 
   @override
-  void onClose() {
+  void onClose() async {
     if (_timer != null) {
       _timer.cancel();
       _timer = null;
     }
     listner.cancel();
+    // await firebaseFirestore.collection('gameList').doc(gameId.value).delete();
     super.onClose();
+  }
+
+  void countFinal(String vinner) async {
+    try {
+      var doc = await firebaseFirestore
+          .collection('gameList')
+          .doc(gameId.value)
+          .get();
+      var data = doc.data();
+
+      String uidPlayer_A = data!['Player_A_uid'] as String;
+      String uidPlayer_B = data['Player_B_uid'] as String;
+
+      var userA =
+          await firebaseFirestore.collection('users').doc(uidPlayer_A).get();
+      var userB =
+          await firebaseFirestore.collection('users').doc(uidPlayer_B).get();
+      var userAData = userA.data();
+      int pointsA = userAData!['points'] as int;
+      int resPointA = vinner == 'A' ? pointsA + 2 : pointsA - 1;
+      await firebaseFirestore.collection('users').doc(uidPlayer_A).update({
+        'points': resPointA,
+      });
+      var userBData = userB.data();
+      int pointsB = userBData!['points'] as int;
+      int resPointB = vinner == 'B' ? pointsB + 2 : pointsB - 1;
+      await firebaseFirestore.collection('users').doc(uidPlayer_B).update({
+        'points': resPointB,
+      });
+      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+        'gameStatus': 'finish',
+      });
+      // mainCtrl.refreshUserState();
+      listner.cancel();
+      Get.back();
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   void setUpVars() {
@@ -62,6 +110,16 @@ class FightController extends GetxController {
     _yourRole = mainCtrl.YourCurrentRole;
   }
 
+  // void exit() async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   String uid = pref.getString('uid') ?? 'none';
+  //   var document = await firebaseFirestore.collection('users').doc(uid).get();
+  //   var me = document.data();
+  //   mainCtrl.points.value = me!['points'] as int;
+  //   Get.back();
+  //   listner.cancel();
+  // }
+
   void gameEngine() async {
     setUpVars();
     snapshots = FirebaseFirestore.instance
@@ -69,13 +127,18 @@ class FightController extends GetxController {
         .doc(gameId.value)
         .snapshots();
     listner = snapshots.listen((data) {
-      mazeMap.value = MazeMap.fromJson(data['Map']);
+      mazeMap = MazeMap.fromJson(data['Map']).obs;
       B_direction = Conv.strToDir(data['Pl_B_Direction']);
       B_frozen = data['Pl_B_Frozen'];
       B_door = data['Pl_B_Door'];
       B_exit = data['Pl_B_Exit'];
       if (_yourRole == 'B') {
         mazeMap.value.reverse();
+        var gameStatus = data['gameStatus'];
+        if (gameStatus == 'finish') {
+          Get.back();
+          listner.cancel();
+        }
       }
     });
     // Isolate.spawn();
@@ -83,7 +146,18 @@ class FightController extends GetxController {
       if (_yourRole.value == 'A') {
         mazeMap.value.MovePlayer_A(moveDirection.value);
         mazeMap.value.countAndExecShaddow_A();
+        textMessage.value = mazeMap.value.message_A;
         mazeMap.value.MovePlayer_B(B_direction);
+        String res = mazeMap.value.checkTheFinish();
+        if (res == 'A' || res == 'B') {
+          countFinal(res);
+          if (_timer != null) {
+            _timer.cancel();
+            _timer = null;
+          }
+          // Get.toNamed(Routes.GENERAL_MENU);
+        }
+        mazeMap.value.checkTheFinish();
         if (B_frozen) {
           mazeMap.value.instalFrozen_B();
         }
@@ -98,6 +172,7 @@ class FightController extends GetxController {
         });
       } else if (_yourRole.value == 'B') {
         mazeMap.value.countAndExecShaddow_B();
+        textMessage.value = mazeMap.value.message_B;
         updateDirection();
       }
       textMessage.value = mazeMap.value.message_A;

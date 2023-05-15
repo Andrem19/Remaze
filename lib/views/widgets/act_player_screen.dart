@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:remaze/controllers/fight_controller.dart';
 
 import 'package:remaze/views/widgets/cube_widget.dart';
+import 'package:remaze/views/widgets/cube_widget_B.dart';
 import 'package:remaze/views/widgets/skills_widget.dart';
 
 import '../../models/maze_map.dart';
@@ -43,18 +44,25 @@ class ActPlayerScreen extends StatelessWidget {
             child: Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children:
-                    List.generate(controller.mazeMap.value.mazeMap.length, (row) {
+                children: List.generate(controller.mazeMap.value.mazeMap.length,
+                    (row) {
                   return Expanded(
                     child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: List.generate(
-                            controller.mazeMap.value.mazeMap[row].length, (col) {
-                          return Expanded(
-                            child: CubeBrick(
-                                cubeProto: controller.mazeMap.value.mazeMap[row]
-                                    [col]),
-                          );
+                            controller.mazeMap.value.mazeMap[row].length,
+                            (col) {
+                          return controller.yourRole == 'A'
+                              ? Expanded(
+                                  child: CubeBrick(
+                                      cubeProto: controller
+                                          .mazeMap.value.mazeMap[row][col]),
+                                )
+                              : Expanded(
+                                  child: CubeBrick_B(
+                                      cubeProto: controller
+                                          .mazeMap.value.mazeMap[row][col]),
+                                );
                         })),
                   );
                 }),
@@ -63,7 +71,10 @@ class ActPlayerScreen extends StatelessWidget {
           ),
           Row(
             children: [
-              Text(controller.textMessage.value, style: TextStyle(color: Colors.red),),
+              Text(
+                controller.textMessage.value,
+                style: TextStyle(color: Colors.red),
+              ),
             ],
           ),
           SkillsWidget()

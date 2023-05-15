@@ -13,7 +13,9 @@ class GeneralMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<MainGameController>(builder: (controller) {
+    MainGameController mainCtrl = Get.find<MainGameController>();
+    return GetBuilder<MainGameController>(
+      builder: (controller) {
       return Scaffold(
         body: Center(
           child: Container(
@@ -98,7 +100,7 @@ class GeneralMenu extends StatelessWidget {
                               child: Padding(
                             padding: const EdgeInsets.only(left: 5.0),
                             child: ElevatedButton(
-                              child: Text('INVITE'),
+                              child: Text('BATTLE'),
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                   textStyle: const TextStyle(
@@ -116,7 +118,7 @@ class GeneralMenu extends StatelessWidget {
                         child: SizedBox(
                           width: 200,
                           child: ElevatedButton(
-                            child: Text('RANDOM RIVAL'),
+                            child: Text('RIVAL SEARCH'),
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.grey,
                                 textStyle: const TextStyle(
