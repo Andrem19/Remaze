@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:remaze/controllers/bindings/bindings.dart';
 import 'package:remaze/views/editor/edit_menu.dart';
+import 'package:remaze/views/game/end_game_screen.dart';
 import 'package:remaze/views/game/multiplayer_game_act.dart';
 import 'package:remaze/views/game/quests.dart';
 import 'package:remaze/views/game_splash_screen.dart';
@@ -78,6 +79,10 @@ class AppPages {
       name: _Paths.ACT_PLAYER_SCREEN, 
       page: () => MultiplayerGameAct(),
       binding: FightControllerBinding()
+    ),
+    GetPage(
+      name: _Paths.FINISH_PAGE, 
+      page: () => EndGameScreen(),
     ),
   ];
 }

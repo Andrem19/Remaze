@@ -54,7 +54,6 @@ class FightController extends GetxController {
       _timer = null;
     }
     listner.cancel();
-    // await firebaseFirestore.collection('gameList').doc(gameId.value).delete();
     super.onClose();
   }
 
@@ -64,7 +63,15 @@ class FightController extends GetxController {
           .collection('gameList')
           .doc(gameId.value)
           .get();
+      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+        'vinner': vinner,
+      });
       var data = doc.data();
+      if (vinner == 'A') {
+        mainCtrl.isVinner = true;
+      } else {
+        mainCtrl.isVinner = false;
+      }
 
       String uidPlayer_A = data!['Player_A_uid'] as String;
       String uidPlayer_B = data['Player_B_uid'] as String;
@@ -85,12 +92,13 @@ class FightController extends GetxController {
       await firebaseFirestore.collection('users').doc(uidPlayer_B).update({
         'points': resPointB,
       });
-      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
-        'gameStatus': 'finish',
-      });
-      // mainCtrl.refreshUserState();
+      mainCtrl.refreshUserState();
       listner.cancel();
-      Get.back();
+      await firebaseFirestore
+          .collection('gameList')
+          .doc(gameId.value)
+          .update({'gameStatus': 'finish', 'Player_A_ready': false});
+      Get.offNamed(Routes.FINISH_PAGE);
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
         content: Text(error.code),
@@ -108,6 +116,13 @@ class FightController extends GetxController {
     mazeMap = mainCtrl.currentGameMap!.obs;
     gameId.value = mainCtrl.currentmultiplayerGameId;
     _yourRole = mainCtrl.YourCurrentRole;
+    if (yourRole == 'A') {
+      moveDirection.value = Direction.up;
+      mazeMap.value.countAndExecShaddow_A();
+    } else {
+      mazeMap.value.countAndExecShaddow_B();
+      moveDirection.value = Direction.down;
+    }
   }
 
   // void exit() async {
@@ -132,12 +147,20 @@ class FightController extends GetxController {
       B_frozen = data['Pl_B_Frozen'];
       B_door = data['Pl_B_Door'];
       B_exit = data['Pl_B_Exit'];
-      if (_yourRole == 'B') {
+      if (yourRole == 'B') {
+        mazeMap.value.countAndExecShaddow_B();
         mazeMap.value.reverse();
-        var gameStatus = data['gameStatus'];
+        String gameStatus = data['gameStatus'];
         if (gameStatus == 'finish') {
-          Get.back();
+          String vinner = data['vinner'];
+          if (vinner == 'B') {
+            mainCtrl.isVinner = true;
+          } else {
+            mainCtrl.isVinner = false;
+          }
+          mainCtrl.refreshUserState();
           listner.cancel();
+          B_finish_game();
         }
       }
     });
@@ -171,13 +194,20 @@ class FightController extends GetxController {
           'Map': mazeMap.value.toJson(),
         });
       } else if (_yourRole.value == 'B') {
-        mazeMap.value.countAndExecShaddow_B();
         textMessage.value = mazeMap.value.message_B;
         updateDirection();
       }
       textMessage.value = mazeMap.value.message_A;
       update();
     });
+  }
+
+  void B_finish_game() async {
+    await firebaseFirestore
+        .collection('gameList')
+        .doc(gameId.value)
+        .update({'Player_B_ready': false});
+    Get.offNamed(Routes.FINISH_PAGE);
   }
 
   void updateDirection() async {

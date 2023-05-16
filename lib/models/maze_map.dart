@@ -19,6 +19,10 @@ class MazeMap {
   Player? player_B;
   Coordinates Player_A_Coord;
   Coordinates Player_B_Coord;
+  Coordinates DoorTeleport_A;
+  Coordinates DoorTeleport_B;
+  Coordinates Frozen_trap_A;
+  Coordinates Frozen_trap_B;
   bool A_FrozenInstalled;
   bool B_FrozenInstalled;
   bool A_DoorInstalled;
@@ -38,6 +42,10 @@ class MazeMap {
     required this.shaddowRadius,
     required this.Player_A_Coord,
     required this.Player_B_Coord,
+    required this.Frozen_trap_A,
+    required this.Frozen_trap_B,
+    required this.DoorTeleport_A,
+    required this.DoorTeleport_B,
     required this.A_FrozenInstalled,
     required this.B_FrozenInstalled,
     required this.A_DoorInstalled,
@@ -350,6 +358,10 @@ class MazeMap {
       'shaddowRadius': shaddowRadius,
       'Player_A_Coord': Player_A_Coord.toMap(),
       'Player_B_Coord': Player_B_Coord.toMap(),
+      'Player_A_Coord': Frozen_trap_A.toMap(),
+      'Player_B_Coord': Frozen_trap_B.toMap(),
+      'Player_A_Coord': DoorTeleport_A.toMap(),
+      'Player_B_Coord': DoorTeleport_B.toMap(),
       'A_FrozenInstalled': A_FrozenInstalled,
       'B_FrozenInstalled': B_FrozenInstalled,
       'A_DoorInstalled': A_DoorInstalled,
@@ -382,6 +394,14 @@ class MazeMap {
           Coordinates.fromMap(map['Player_A_Coord'] as Map<String, dynamic>),
       Player_B_Coord:
           Coordinates.fromMap(map['Player_B_Coord'] as Map<String, dynamic>),
+      Frozen_trap_A:
+          Coordinates.fromMap(map['Frozen_trap_A'] as Map<String, dynamic>),
+      Frozen_trap_B:
+          Coordinates.fromMap(map['Frozen_trap_B'] as Map<String, dynamic>),
+      DoorTeleport_A:
+          Coordinates.fromMap(map['DoorTeleport_A'] as Map<String, dynamic>),
+      DoorTeleport_B:
+          Coordinates.fromMap(map['DoorTeleport_B'] as Map<String, dynamic>),
       A_FrozenInstalled: map['A_FrozenInstalled'] as bool,
       B_FrozenInstalled: map['B_FrozenInstalled'] as bool,
       A_DoorInstalled: map['A_DoorInstalled'] as bool,

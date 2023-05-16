@@ -48,6 +48,11 @@ class SearchRivalController extends GetxController {
         'Player_B_name': mainCtrl.player.value.uid,
         'gameStatus': 'waiting'
       });
+      var data = playerList.docs[0].data();
+      mainCtrl.currentGameMap = MazeMap.fromJson(data['Map']);
+      mainCtrl.currentMapId = data['Map_Id'];
+      mainCtrl.currentmultiplayerGameId = playerList.docs[0].id;
+      mainCtrl.currentMapName = data['MapName'];
       mainCtrl.YourCurrentRole.value = 'B';
       startGameStream(playerList.docs[0].id);
     }
@@ -158,6 +163,7 @@ class SearchRivalController extends GetxController {
           'Player_B_uid': '',
           'Player_B_Name': '',
           'Player_B_ready': false,
+          'vinner': '',
           'gameStatus': 'searching',
           'date': DateTime.now(),
         });

@@ -25,6 +25,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
   late SharedPreferences pref;
   Rx<Player> player = Player(uid: 'uid', userName: 'userName').obs;
   Rx<int> points = 0.obs;
+  bool isVinner = false;
 
   TextEditingController targetQrCode = TextEditingController();
   Rx<TextEditingController> userNameController = TextEditingController().obs;
@@ -46,7 +47,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
     // await pref.remove('user');
     await authenticate();
     super.onInit();
-  }  
+  }
 
   @override
   void dispose() {
@@ -67,12 +68,32 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
       isPaused = false;
     }
   }
+
   void refreshUserState() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String uid = pref.getString('uid') ?? 'none';
     var document = await firebaseFirestore.collection('users').doc(uid).get();
     var me = document.data();
     points.value = me!['points'] as int;
+    update();
+  }
+
+  void deleteMultiplayerGameInstant() async {
+    var doc = await firebaseFirestore
+        .collection('gameList')
+        .doc(currentmultiplayerGameId)
+        .get();
+    if (doc.exists) {
+      var data = doc.data();
+      bool Player_A = data!['Player_A_ready'];
+      bool Player_B = data['Player_B_ready'];
+      if (!Player_A && !Player_B) {
+        await firebaseFirestore
+            .collection('gameList')
+            .doc(currentmultiplayerGameId)
+            .delete();
+      }
+    }
   }
 
   Future<void> authenticate() async {

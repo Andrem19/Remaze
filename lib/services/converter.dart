@@ -23,16 +23,16 @@ class Conv {
   static String dirToStr(Direction direction) {
     switch (direction) {
       case Direction.up:
-        return 'up';
-        break;
-      case Direction.down:
         return 'down';
         break;
+      case Direction.down:
+        return 'up';
+        break;
       case Direction.left:
-        return 'left';
+        return 'right';
         break;
       case Direction.right:
-        return 'right';
+        return 'left';
         break;
       default:
       return 'up';

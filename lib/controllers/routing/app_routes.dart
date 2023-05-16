@@ -15,6 +15,7 @@ abstract class Routes {
   static const QR_SCANNER = _Paths.QR_SCANNER;
   static const RIVAL_SEARCH = _Paths.RIVAL_SEARCH;
   static const ACT_PLAYER_ACREEN = _Paths.ACT_PLAYER_SCREEN;
+  static const FINISH_PAGE = _Paths.FINISH_PAGE;
 }
 
 abstract class _Paths {
@@ -30,4 +31,5 @@ abstract class _Paths {
   static const QR_SCANNER = "/qr_scanner";
   static const RIVAL_SEARCH = "/rival_search";
   static const ACT_PLAYER_SCREEN = "/act_player_screen";
+  static const FINISH_PAGE = "/finish_page";
 }

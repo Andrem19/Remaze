@@ -58,7 +58,12 @@ class TestData {
         B_ExitInstalled: false,
         Player_A_Frozen: 0,
         Player_B_Frozen: 0,
+        DoorTeleport_A: Coordinates(isInit: false, row: 0, col: 0),
+        DoorTeleport_B: Coordinates(isInit: false, row: 0, col: 0),
+        Frozen_trap_A: Coordinates(isInit: false, row: 0, col: 0),
+        Frozen_trap_B: Coordinates(isInit: false, row: 0, col: 0),
         ExitTeleport_A: Coordinates(isInit: false, row: 0, col: 0),
         ExitTeleport_B: Coordinates(isInit: false, row: 0, col: 0));
+
   }
 }
