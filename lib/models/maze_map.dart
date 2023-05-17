@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:remaze/models/game_info.dart';
 
 import 'package:remaze/models/palyer.dart';
 
@@ -95,6 +96,29 @@ class MazeMap {
       mazeMap[i] = mazeMap[i].reversed.toList();
       for (var j = 0; j < mazeMap[i].length; j++) {}
     }
+  }
+
+  GameInfo getGameInfo() {
+    return GameInfo(
+        Player_A_Coord: Player_A_Coord,
+        Player_B_Coord: Player_B_Coord,
+        DoorTeleport_A: DoorTeleport_A,
+        DoorTeleport_B: DoorTeleport_B,
+        Frozen_trap_A: Frozen_trap_A,
+        Frozen_trap_B: Frozen_trap_B,
+        ExitTeleport_A: ExitTeleport_A,
+        ExitTeleport_B: ExitTeleport_B);
+  }
+
+  void fromGameInfo(GameInfo info) {
+    Player_A_Coord = info.Player_A_Coord;
+    Player_B_Coord = info.Player_B_Coord;
+    DoorTeleport_A = info.DoorTeleport_A;
+    DoorTeleport_B = info.DoorTeleport_B;
+    Frozen_trap_A = info.Frozen_trap_A;
+    Frozen_trap_B = info.Frozen_trap_B;
+    ExitTeleport_A = info.ExitTeleport_A;
+    ExitTeleport_B = info.ExitTeleport_B;
   }
 
   void countAndExecShaddow_A() {
@@ -273,10 +297,11 @@ class MazeMap {
   }
 
   String checkTheFinish() {
-    if (Player_A_Coord.row == 0 && Player_A_Coord.col == mazeMap[0].length-1) {
+    if (Player_A_Coord.row == 0 &&
+        Player_A_Coord.col == mazeMap[0].length - 1) {
       return 'A';
     }
-    if (Player_B_Coord.row == mazeMap.length-1 && Player_B_Coord.col == 0) {
+    if (Player_B_Coord.row == mazeMap.length - 1 && Player_B_Coord.col == 0) {
       return 'B';
     }
     return 'N';

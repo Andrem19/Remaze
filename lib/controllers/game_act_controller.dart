@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
+import 'package:remaze/models/game_info.dart';
 import '../keys.dart';
 import '../models/maze_map.dart';
 
@@ -10,6 +11,7 @@ class GameActController extends GetxController {
   GameActController({required this.mazeMap, required this.mapId});
 
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+  
   String mapId;
   int durationOfAct = 600;
   late int time;
@@ -57,7 +59,7 @@ class GameActController extends GetxController {
     mazeMap.value.countAndExecShaddow_A();
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
       // print(moveDirection.value.toString());
-      
+
       mazeMap.value.MovePlayer_A(moveDirection.value);
       mazeMap.value.countAndExecShaddow_A();
       time--;
@@ -108,11 +110,11 @@ class GameActController extends GetxController {
           }
         } else {
           await FirebaseFirestore.instance
-                .collection('maps')
-                .doc(mapId)
-                .update({
-              'champions.${cntr.player.value.userName}': seconds,
-            });
+              .collection('maps')
+              .doc(mapId)
+              .update({
+            'champions.${cntr.player.value.userName}': seconds,
+          });
         }
       }
     } on FirebaseException catch (error) {

@@ -12,9 +12,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:isolate';
 
 import '../keys.dart';
+import '../models/game_info.dart';
 import '../services/converter.dart';
 
 class FightController extends GetxController {
+  late Rx<GameInfo> gameInfo;
   late Rx<MazeMap> mazeMap;
   late Stream<DocumentSnapshot<Map<String, dynamic>>> snapshots;
   late StreamSubscription<DocumentSnapshot<Map<String, dynamic>>> listner;
@@ -142,14 +144,16 @@ class FightController extends GetxController {
         .doc(gameId.value)
         .snapshots();
     listner = snapshots.listen((data) {
-      mazeMap = MazeMap.fromJson(data['Map']).obs;
-      B_direction = Conv.strToDir(data['Pl_B_Direction']);
-      B_frozen = data['Pl_B_Frozen'];
-      B_door = data['Pl_B_Door'];
-      B_exit = data['Pl_B_Exit'];
-      if (yourRole == 'B') {
+      if (yourRole == 'A') {
+        gameInfo = GameInfo.fromJson(data['GameInfo_A']).obs;
+        mazeMap.value.fromGameInfo(gameInfo.value);
+        mazeMap.value.countAndExecShaddow_A();
+      } else if (yourRole == 'B') {
+        gameInfo = GameInfo.fromJson(data['GameInfo_B']).obs;
+        mazeMap.value.fromGameInfo(gameInfo.value);
         mazeMap.value.countAndExecShaddow_B();
         mazeMap.value.reverse();
+        //======================================= продолжить отсюда
         String gameStatus = data['gameStatus'];
         if (gameStatus == 'finish') {
           String vinner = data['vinner'];

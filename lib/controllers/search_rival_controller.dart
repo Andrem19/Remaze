@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
+import 'package:remaze/models/game_info.dart';
 
 import '../keys.dart';
 import '../models/maze_map.dart';
@@ -49,8 +50,16 @@ class SearchRivalController extends GetxController {
         'gameStatus': 'waiting'
       });
       var data = playerList.docs[0].data();
-      mainCtrl.currentGameMap = MazeMap.fromJson(data['Map']);
+      
       mainCtrl.currentMapId = data['Map_Id'];
+      var maps = await FirebaseFirestore.instance
+          .collection('maps')
+          .where('id', isEqualTo: mainCtrl.currentMapId)
+          .get();
+      if (maps.docs.length > 1) {
+        var data = maps.docs[0].data();
+        mainCtrl.currentGameMap = MazeMap.fromJson(data['map']);
+      }
       mainCtrl.currentmultiplayerGameId = playerList.docs[0].id;
       mainCtrl.currentMapName = data['MapName'];
       mainCtrl.YourCurrentRole.value = 'B';
@@ -152,17 +161,14 @@ class SearchRivalController extends GetxController {
         var doc = await firebaseFirestore.collection('gameList').add({
           'MapName': mainCtrl.currentMapName,
           'Map_Id': mainCtrl.currentMapId,
-          'Map': mainCtrl.currentGameMap!.toJson(),
           'Player_A_uid': mainCtrl.player.value.uid,
           'Player_A_Name': mainCtrl.player.value.userName,
           'Player_A_ready': false,
-          'Pl_B_Direction': '',
-          'Pl_B_Frozen': false,
-          'Pl_B_Door': false,
-          'Pl_B_Exit': false,
           'Player_B_uid': '',
           'Player_B_Name': '',
           'Player_B_ready': false,
+          'GameInfo_A': GameInfo.createEmptyGameInfo().toJson(),
+          'GameInfo_B': GameInfo.createEmptyGameInfo().toJson(),
           'vinner': '',
           'gameStatus': 'searching',
           'date': DateTime.now(),

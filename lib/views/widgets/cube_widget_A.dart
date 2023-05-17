@@ -11,10 +11,10 @@ import 'package:remaze/models/game_info.dart';
 
 import '../../services/compare_coord.dart';
 
-class CubeBrick_B extends StatelessWidget {
+class CubeBrick_A extends StatelessWidget {
   GameInfo gameInfo;
   Cube cubeProto;
-  CubeBrick_B({
+  CubeBrick_A({
     Key? key,
     required this.cubeProto,
     required this.gameInfo,
@@ -44,8 +44,8 @@ class CubeBrick_B extends StatelessWidget {
   }
 
   Container? createStuff(Cube cubeProto) {
-    if (Compare.compareCoord(gameInfo.Player_B_Coord, cubeProto)) {
-      if (Compare.compareCoord(gameInfo.Frozen_trap_A, cubeProto)) {
+    if (Compare.compareCoord(gameInfo.Player_A_Coord, cubeProto)) {
+      if (Compare.compareCoord(gameInfo.Frozen_trap_B, cubeProto)) {
         return Container(
           child: Image.asset('assets/images/snowflake.jpg'),
         );
@@ -56,7 +56,7 @@ class CubeBrick_B extends StatelessWidget {
           shape: BoxShape.circle,
         ),
       );
-    } else if (Compare.compareCoord(gameInfo.Player_A_Coord, cubeProto)) {
+    } else if (Compare.compareCoord(gameInfo.Player_B_Coord, cubeProto)) {
       return Container(
         decoration: new BoxDecoration(
           color: Colors.red,
@@ -64,17 +64,17 @@ class CubeBrick_B extends StatelessWidget {
         ),
       );
     } else {
-      if (!cubeProto.isShaddow && !Compare.compareCoord(gameInfo.Player_B_Coord, cubeProto)) {
-        if (Compare.compareCoord(gameInfo.Frozen_trap_B, cubeProto)) {
+      if (!cubeProto.isShaddow && !Compare.compareCoord(gameInfo.Player_A_Coord, cubeProto)) {
+        if (Compare.compareCoord(gameInfo.Frozen_trap_A, cubeProto)) {
           return Container(
             child: Image.asset('assets/images/snowflake.jpg'),
           );
-        } else if (Compare.compareCoord(gameInfo.DoorTeleport_B, cubeProto)) {
+        } else if (Compare.compareCoord(gameInfo.DoorTeleport_A, cubeProto)) {
           return Container(
             child: Opacity(
                 opacity: 0.5, child: Image.asset('assets/images/teleport.jpg')),
           );
-        } else if (Compare.compareCoord(gameInfo.ExitTeleport_B, cubeProto)) {
+        } else if (Compare.compareCoord(gameInfo.ExitTeleport_A, cubeProto)) {
           return Container(
             child: Opacity(
                 opacity: 0.9, child: Image.asset('assets/images/teleport.jpg')),

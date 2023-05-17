@@ -9,6 +9,7 @@ import 'package:remaze/views/widgets/cube_widget_B.dart';
 import 'package:remaze/views/widgets/skills_widget.dart';
 
 import '../../models/maze_map.dart';
+import 'cube_widget_A.dart';
 
 class ActPlayerScreen extends StatelessWidget {
   ActPlayerScreen({
@@ -54,12 +55,14 @@ class ActPlayerScreen extends StatelessWidget {
                             (col) {
                           return controller.yourRole == 'A'
                               ? Expanded(
-                                  child: CubeBrick(
+                                  child: CubeBrick_A(
+                                    gameInfo: controller.gameInfo.value,
                                       cubeProto: controller
                                           .mazeMap.value.mazeMap[row][col]),
                                 )
                               : Expanded(
                                   child: CubeBrick_B(
+                                    gameInfo: controller.gameInfo.value,
                                       cubeProto: controller
                                           .mazeMap.value.mazeMap[row][col]),
                                 );
