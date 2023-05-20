@@ -38,4 +38,24 @@ class Conv {
       return 'up';
     }
   }
+
+  static Direction upToDown(Direction direction) {
+    switch (direction) {
+      case Direction.up:
+        return Direction.down;
+        break;
+      case Direction.down:
+        return Direction.up;
+        break;
+      case Direction.left:
+        return Direction.right;
+        break;
+      case Direction.right:
+        return Direction.left;
+        break;
+      default:
+      return Direction.left;
+    }
+  }
+
 }

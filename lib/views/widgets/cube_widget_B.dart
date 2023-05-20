@@ -65,16 +65,16 @@ class CubeBrick_B extends StatelessWidget {
       );
     } else {
       if (!cubeProto.isShaddow && !Compare.compareCoord(gameInfo.Player_B_Coord, cubeProto)) {
-        if (Compare.compareCoord(gameInfo.Frozen_trap_B, cubeProto)) {
+        if (Compare.compareCoord(gameInfo.Frozen_trap_B, cubeProto) && gameInfo.Frozen_trap_B.isInit) {
           return Container(
             child: Image.asset('assets/images/snowflake.jpg'),
           );
-        } else if (Compare.compareCoord(gameInfo.DoorTeleport_B, cubeProto)) {
+        } else if (Compare.compareCoord(gameInfo.DoorTeleport_B, cubeProto) && gameInfo.DoorTeleport_B.isInit) {
           return Container(
             child: Opacity(
                 opacity: 0.5, child: Image.asset('assets/images/teleport.jpg')),
           );
-        } else if (Compare.compareCoord(gameInfo.ExitTeleport_B, cubeProto)) {
+        } else if (Compare.compareCoord(gameInfo.ExitTeleport_B, cubeProto) && gameInfo.ExitTeleport_B.isInit) {
           return Container(
             child: Opacity(
                 opacity: 0.9, child: Image.asset('assets/images/teleport.jpg')),

@@ -23,16 +23,70 @@ class GameInfo {
     required this.ExitTeleport_B,
   });
 
-  static GameInfo createEmptyGameInfo() {
+  static GameInfo createEmptyGameInfo(MazeMap map) {
     return GameInfo(
-        Player_A_Coord: Coordinates(isInit: false, row: 0, col: 0),
-        Player_B_Coord: Coordinates(isInit: false, row: 0, col: 0),
+        Player_A_Coord:
+            Coordinates(isInit: true, row: map.mazeMap.length - 1, col: 0),
+        Player_B_Coord:
+            Coordinates(isInit: true, row: 0, col: map.mazeMap[0].length - 1),
         DoorTeleport_A: Coordinates(isInit: false, row: 0, col: 0),
         DoorTeleport_B: Coordinates(isInit: false, row: 0, col: 0),
         Frozen_trap_A: Coordinates(isInit: false, row: 0, col: 0),
         Frozen_trap_B: Coordinates(isInit: false, row: 0, col: 0),
         ExitTeleport_A: Coordinates(isInit: false, row: 0, col: 0),
         ExitTeleport_B: Coordinates(isInit: false, row: 0, col: 0));
+  }
+
+  static GameInfo reverseGameInfo(GameInfo info, MazeMap map) {
+    info.Player_B_Coord = Coordinates(
+        isInit: info.Player_B_Coord.isInit,
+        row: (map.mazeMap.length - 1) - info.Player_B_Coord.row,
+        col: (map.mazeMap[0].length - 1) - info.Player_B_Coord.col);
+    info.Player_A_Coord = Coordinates(
+        isInit: info.Player_A_Coord.isInit,
+        row: (map.mazeMap.length - 1) - info.Player_A_Coord.row,
+        col: (map.mazeMap[0].length - 1) - info.Player_A_Coord.col);
+    if (info.Frozen_trap_A.isInit) {
+      info.Frozen_trap_A = Coordinates(
+          isInit: info.Frozen_trap_A.isInit,
+          row: (map.mazeMap.length - 1) - info.Frozen_trap_A.row,
+          col: (map.mazeMap[0].length - 1) - info.Frozen_trap_A.col);
+    }
+    if (info.Frozen_trap_B.isInit) {
+      info.Frozen_trap_B = Coordinates(
+          isInit: info.Frozen_trap_B.isInit,
+          row: (map.mazeMap.length - 1) - info.Frozen_trap_B.row,
+          col: (map.mazeMap[0].length - 1) - info.Frozen_trap_B.col);
+    }
+
+    if (info.DoorTeleport_A.isInit) {
+      info.DoorTeleport_A = Coordinates(
+        isInit: info.DoorTeleport_A.isInit,
+        row: (map.mazeMap.length - 1) - info.DoorTeleport_A.row,
+        col: (map.mazeMap[0].length - 1) - info.DoorTeleport_A.col);
+    }
+
+    if (info.DoorTeleport_B.isInit) {
+      info.DoorTeleport_B = Coordinates(
+        isInit: info.DoorTeleport_B.isInit,
+        row: (map.mazeMap.length - 1) - info.DoorTeleport_B.row,
+        col: (map.mazeMap[0].length - 1) - info.DoorTeleport_B.col);
+    }
+
+    if (info.ExitTeleport_A.isInit) {
+      info.ExitTeleport_A = Coordinates(
+        isInit: info.ExitTeleport_A.isInit,
+        row: (map.mazeMap.length - 1) - info.ExitTeleport_A.row,
+        col: (map.mazeMap[0].length - 1) - info.ExitTeleport_A.col);
+    }
+
+    if (info.ExitTeleport_B.isInit) {
+      info.ExitTeleport_B = Coordinates(
+        isInit: info.ExitTeleport_B.isInit,
+        row: (map.mazeMap.length - 1) - info.ExitTeleport_B.row,
+        col: (map.mazeMap[0].length - 1) - info.ExitTeleport_B.col);
+    }
+    return info;
   }
 
   GameInfo copyWith({

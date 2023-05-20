@@ -25,7 +25,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
   late SharedPreferences pref;
   Rx<Player> player = Player(uid: 'uid', userName: 'userName').obs;
   Rx<int> points = 0.obs;
-  bool isVinner = false;
+  String vinner = '';
 
   TextEditingController targetQrCode = TextEditingController();
   Rx<TextEditingController> userNameController = TextEditingController().obs;

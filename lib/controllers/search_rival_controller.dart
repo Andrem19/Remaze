@@ -12,6 +12,7 @@ import '../models/maze_map.dart';
 import 'main_game_controller.dart';
 
 class SearchRivalController extends GetxController {
+  String gameId = '';
   RxString gameStatus = 'searching...'.obs;
   RxString nameOfMap = 'searching...'.obs;
   MainGameController mainCtrl = Get.find<MainGameController>();
@@ -27,7 +28,8 @@ class SearchRivalController extends GetxController {
   }
 
   @override
-  void onClose() {
+  void onClose() async {
+    await chekIfNeedToDelete();
     listner.cancel();
     super.onClose();
   }
@@ -46,19 +48,20 @@ class SearchRivalController extends GetxController {
           .doc(playerList.docs[0].id)
           .update({
         'Player_B_uid': mainCtrl.player.value.uid,
-        'Player_B_name': mainCtrl.player.value.uid,
+        'Player_B_Name': mainCtrl.player.value.uid,
         'gameStatus': 'waiting'
       });
       var data = playerList.docs[0].data();
-      
+
       mainCtrl.currentMapId = data['Map_Id'];
       var maps = await FirebaseFirestore.instance
           .collection('maps')
           .where('id', isEqualTo: mainCtrl.currentMapId)
           .get();
-      if (maps.docs.length > 1) {
+      if (maps.docs.length > 0) {
         var data = maps.docs[0].data();
         mainCtrl.currentGameMap = MazeMap.fromJson(data['map']);
+        prepareMapToGame();
       }
       mainCtrl.currentmultiplayerGameId = playerList.docs[0].id;
       mainCtrl.currentMapName = data['MapName'];
@@ -122,7 +125,7 @@ class SearchRivalController extends GetxController {
               .update({
             'gameStatus': 'playing',
           });
-          Get.toNamed(Routes.ACT_PLAYER_ACREEN);
+          // Get.toNamed(Routes.ACT_PLAYER_ACREEN);
         }
       } else if (mainCtrl.YourCurrentRole.value == 'B') {
         await firebaseFirestore
@@ -138,7 +141,7 @@ class SearchRivalController extends GetxController {
               .update({
             'gameStatus': 'playing',
           });
-          Get.toNamed(Routes.ACT_PLAYER_ACREEN);
+          // Get.toNamed(Routes.ACT_PLAYER_ACREEN);
         }
       }
     } on FirebaseException catch (error) {
@@ -156,6 +159,7 @@ class SearchRivalController extends GetxController {
 
   Future<bool> _addPlayerToList() async {
     bool res = await chooseRandomMap();
+    print(res);
     if (res) {
       try {
         var doc = await firebaseFirestore.collection('gameList').add({
@@ -167,15 +171,17 @@ class SearchRivalController extends GetxController {
           'Player_B_uid': '',
           'Player_B_Name': '',
           'Player_B_ready': false,
-          'GameInfo_A': GameInfo.createEmptyGameInfo().toJson(),
-          'GameInfo_B': GameInfo.createEmptyGameInfo().toJson(),
+          'GameInfo_A':
+              GameInfo.createEmptyGameInfo(mainCtrl.currentGameMap!).toJson(),
+          'GameInfo_B':
+              GameInfo.createEmptyGameInfo(mainCtrl.currentGameMap!).toJson(),
           'vinner': '',
           'gameStatus': 'searching',
           'date': DateTime.now(),
         });
         mainCtrl.YourCurrentRole.value = 'A';
         nameOfMap.value = mainCtrl.currentMapName ?? '';
-
+        gameId = doc.id;
         startGameStream(doc.id);
         return true;
       } on FirebaseException catch (error) {
@@ -195,6 +201,20 @@ class SearchRivalController extends GetxController {
     return false;
   }
 
+  Future<void> chekIfNeedToDelete() async {
+    if (gameId != '') {
+      var doc =
+          await firebaseFirestore.collection('gameList').doc(gameId).get();
+      if (doc.exists) {
+        var data = doc.data();
+        String status = data!['gameStatus'] as String;
+        if (status == 'searching' || status == 'waiting') {
+          await firebaseFirestore.collection('gameList').doc(gameId).delete();
+        }
+      }
+    }
+  }
+
   Future<bool> chooseRandomMap() async {
     try {
       var maps = await FirebaseFirestore.instance
@@ -206,8 +226,10 @@ class SearchRivalController extends GetxController {
       print(maps.docs[randomInt].exists);
       if (maps.docs[randomInt].exists) {
         mainCtrl.currentMapId = maps.docs[randomInt]['id'];
+        print(maps.docs[randomInt]['id']);
         mainCtrl.currentGameMap = MazeMap.fromJson(maps.docs[randomInt]['map']);
         mainCtrl.currentMapName = maps.docs[randomInt]['name'];
+        print(maps.docs[randomInt]['name']);
         prepareMapToGame();
         return true;
       } else {

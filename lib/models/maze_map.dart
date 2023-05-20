@@ -98,6 +98,22 @@ class MazeMap {
     }
   }
 
+  void reversePlus() {
+    Player_B_Coord = Coordinates(
+        isInit: Player_B_Coord.isInit,
+        row: (mazeMap.length - 1) - Player_B_Coord.row,
+        col: (mazeMap[0].length - 1) - Player_B_Coord.col);
+    Player_A_Coord = Coordinates(
+        isInit: Player_A_Coord.isInit,
+        row: (mazeMap.length - 1) - Player_A_Coord.row,
+        col: (mazeMap[0].length - 1) - Player_A_Coord.col);
+    mazeMap = mazeMap.reversed.toList();
+    for (var i = 0; i < mazeMap.length; i++) {
+      mazeMap[i] = mazeMap[i].reversed.toList();
+      for (var j = 0; j < mazeMap[i].length; j++) {}
+    }
+  }
+
   GameInfo getGameInfo() {
     return GameInfo(
         Player_A_Coord: Player_A_Coord,
@@ -109,6 +125,8 @@ class MazeMap {
         ExitTeleport_A: ExitTeleport_A,
         ExitTeleport_B: ExitTeleport_B);
   }
+
+  
 
   void fromGameInfo(GameInfo info) {
     Player_A_Coord = info.Player_A_Coord;
@@ -296,20 +314,26 @@ class MazeMap {
     }
   }
 
-  String checkTheFinish() {
+  bool checkTheFinish_A() {
     if (Player_A_Coord.row == 0 &&
         Player_A_Coord.col == mazeMap[0].length - 1) {
-      return 'A';
+      return true;
     }
-    if (Player_B_Coord.row == mazeMap.length - 1 && Player_B_Coord.col == 0) {
-      return 'B';
+    return false;
+  }
+
+  bool checkTheFinish_B() {
+    if (Player_B_Coord.row == 0 && Player_B_Coord.col == mazeMap[0].length - 1) {
+      return true;
     }
-    return 'N';
+    return false;
   }
 
   void instalFrozen_A() {
     if (!A_FrozenInstalled) {
       mazeMap[Player_A_Coord.row][Player_A_Coord.col].isFrozen_A_Here = true;
+      Frozen_trap_A = Coordinates(
+          isInit: true, row: Player_A_Coord.row, col: Player_A_Coord.col);
       A_FrozenInstalled = true;
       message_A = 'Frozen trap instaled';
     }
@@ -319,6 +343,8 @@ class MazeMap {
     if (!A_DoorInstalled) {
       mazeMap[Player_A_Coord.row][Player_A_Coord.col].isTeleportDoor_A_Here =
           true;
+      DoorTeleport_A = Coordinates(
+          isInit: true, row: Player_A_Coord.row, col: Player_A_Coord.col);
       A_DoorInstalled = true;
       message_A = 'Door trap instaled';
     }
@@ -340,6 +366,8 @@ class MazeMap {
   void instalFrozen_B() {
     if (!B_FrozenInstalled) {
       mazeMap[Player_B_Coord.row][Player_B_Coord.col].isFrozen_B_Here = true;
+      Frozen_trap_B = Coordinates(
+          isInit: true, row: Player_B_Coord.row, col: Player_B_Coord.col);
       B_FrozenInstalled = true;
       message_B = 'Frozen trap instaled';
     }
@@ -349,6 +377,8 @@ class MazeMap {
     if (!B_DoorInstalled) {
       mazeMap[Player_B_Coord.row][Player_B_Coord.col].isTeleportDoor_B_Here =
           true;
+      DoorTeleport_B = Coordinates(
+          isInit: true, row: Player_B_Coord.row, col: Player_B_Coord.col);
       B_DoorInstalled = true;
       message_B = 'Door trap instaled';
     }
@@ -383,10 +413,10 @@ class MazeMap {
       'shaddowRadius': shaddowRadius,
       'Player_A_Coord': Player_A_Coord.toMap(),
       'Player_B_Coord': Player_B_Coord.toMap(),
-      'Player_A_Coord': Frozen_trap_A.toMap(),
-      'Player_B_Coord': Frozen_trap_B.toMap(),
-      'Player_A_Coord': DoorTeleport_A.toMap(),
-      'Player_B_Coord': DoorTeleport_B.toMap(),
+      'Frozen_trap_A': Frozen_trap_A.toMap(),
+      'Frozen_trap_B': Frozen_trap_B.toMap(),
+      'DoorTeleport_A': DoorTeleport_A.toMap(),
+      'DoorTeleport_B': DoorTeleport_B.toMap(),
       'A_FrozenInstalled': A_FrozenInstalled,
       'B_FrozenInstalled': B_FrozenInstalled,
       'A_DoorInstalled': A_DoorInstalled,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,13 +17,15 @@ import '../models/game_info.dart';
 import '../services/converter.dart';
 
 class FightController extends GetxController {
-  late Rx<GameInfo> gameInfo;
   late Rx<MazeMap> mazeMap;
   late Stream<DocumentSnapshot<Map<String, dynamic>>> snapshots;
   late StreamSubscription<DocumentSnapshot<Map<String, dynamic>>> listner;
   Rx<String> gameId = ''.obs;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   MainGameController mainCtrl = Get.find<MainGameController>();
+  Rx<GameInfo> gameInfo = GameInfo.createEmptyGameInfo(
+          Get.find<MainGameController>().currentGameMap!)
+      .obs;
 
   Rx<bool> showSkills = false.obs;
   late Direction B_direction;
@@ -69,11 +72,6 @@ class FightController extends GetxController {
         'vinner': vinner,
       });
       var data = doc.data();
-      if (vinner == 'A') {
-        mainCtrl.isVinner = true;
-      } else {
-        mainCtrl.isVinner = false;
-      }
 
       String uidPlayer_A = data!['Player_A_uid'] as String;
       String uidPlayer_B = data['Player_B_uid'] as String;
@@ -96,10 +94,17 @@ class FightController extends GetxController {
       });
       mainCtrl.refreshUserState();
       listner.cancel();
-      await firebaseFirestore
-          .collection('gameList')
-          .doc(gameId.value)
-          .update({'gameStatus': 'finish', 'Player_A_ready': false});
+      if (yourRole == 'A') {
+        await firebaseFirestore
+            .collection('gameList')
+            .doc(gameId.value)
+            .update({'gameStatus': 'finish', 'Player_A_ready': false});
+      } else {
+        await firebaseFirestore
+            .collection('gameList')
+            .doc(gameId.value)
+            .update({'gameStatus': 'finish', 'Player_B_ready': false});
+      }
       Get.offNamed(Routes.FINISH_PAGE);
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
@@ -114,96 +119,120 @@ class FightController extends GetxController {
     }
   }
 
-  void setUpVars() {
+  Future<void> setUpVars() async {
     mazeMap = mainCtrl.currentGameMap!.obs;
     gameId.value = mainCtrl.currentmultiplayerGameId;
     _yourRole = mainCtrl.YourCurrentRole;
     if (yourRole == 'A') {
-      moveDirection.value = Direction.up;
       mazeMap.value.countAndExecShaddow_A();
+      changeState(mazeMap.value.getGameInfo(), yourRole);
     } else {
+      mazeMap.value.reversePlus();
       mazeMap.value.countAndExecShaddow_B();
-      moveDirection.value = Direction.down;
+      changeState(
+          GameInfo.reverseGameInfo(mazeMap.value.getGameInfo(), mazeMap.value),
+          yourRole);
     }
+    update();
   }
 
-  // void exit() async {
-  //   SharedPreferences pref = await SharedPreferences.getInstance();
-  //   String uid = pref.getString('uid') ?? 'none';
-  //   var document = await firebaseFirestore.collection('users').doc(uid).get();
-  //   var me = document.data();
-  //   mainCtrl.points.value = me!['points'] as int;
-  //   Get.back();
-  //   listner.cancel();
-  // }
-
   void gameEngine() async {
-    setUpVars();
+    await setUpVars();
+    userControl();
     snapshots = FirebaseFirestore.instance
         .collection('gameList')
         .doc(gameId.value)
         .snapshots();
     listner = snapshots.listen((data) {
       if (yourRole == 'A') {
-        gameInfo = GameInfo.fromJson(data['GameInfo_A']).obs;
-        mazeMap.value.fromGameInfo(gameInfo.value);
+        // gameInfo = GameInfo.fromJson(data['GameInfo_A']).obs;
+        // mazeMap.value.fromGameInfo(gameInfo.value);
+        coordinatesOfEnemy_for_A(data['GameInfo_B']);
         mazeMap.value.countAndExecShaddow_A();
-      } else if (yourRole == 'B') {
-        gameInfo = GameInfo.fromJson(data['GameInfo_B']).obs;
-        mazeMap.value.fromGameInfo(gameInfo.value);
-        mazeMap.value.countAndExecShaddow_B();
-        mazeMap.value.reverse();
-        //======================================= продолжить отсюда
         String gameStatus = data['gameStatus'];
         if (gameStatus == 'finish') {
-          String vinner = data['vinner'];
-          if (vinner == 'B') {
-            mainCtrl.isVinner = true;
-          } else {
-            mainCtrl.isVinner = false;
-          }
-          mainCtrl.refreshUserState();
-          listner.cancel();
+          A_finish_game();
+        }
+      } else if (yourRole == 'B') {
+        // gameInfo = GameInfo.fromJson(data['GameInfo_B']).obs;
+        // mazeMap.value.fromGameInfo(GameInfo.reverseGameInfo(gameInfo.value, mazeMap.value));
+        coordinatesOfEnemy_for_B(data['GameInfo_A']);
+        mazeMap.value.countAndExecShaddow_B();
+        String gameStatus = data['gameStatus'];
+        if (gameStatus == 'finish') {
           B_finish_game();
         }
       }
+      update();
     });
-    // Isolate.spawn();
+  }
+
+  void userControl() {
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
       if (_yourRole.value == 'A') {
         mazeMap.value.MovePlayer_A(moveDirection.value);
         mazeMap.value.countAndExecShaddow_A();
         textMessage.value = mazeMap.value.message_A;
-        mazeMap.value.MovePlayer_B(B_direction);
-        String res = mazeMap.value.checkTheFinish();
-        if (res == 'A' || res == 'B') {
-          countFinal(res);
+        gameInfo.value = mazeMap.value.getGameInfo();
+        changeState(gameInfo.value, yourRole);
+        bool res = mazeMap.value.checkTheFinish_A();
+        if (res) {
+          countFinal('A');
+          mainCtrl.vinner = 'A';
           if (_timer != null) {
             _timer.cancel();
             _timer = null;
           }
-          // Get.toNamed(Routes.GENERAL_MENU);
         }
-        mazeMap.value.checkTheFinish();
-        if (B_frozen) {
-          mazeMap.value.instalFrozen_B();
-        }
-        if (B_door) {
-          mazeMap.value.instalDoor_B();
-        }
-        if (B_exit) {
-          mazeMap.value.instalExit_B();
-        }
-        firebaseFirestore.collection('gameList').doc(gameId.value).update({
-          'Map': mazeMap.value.toJson(),
-        });
       } else if (_yourRole.value == 'B') {
+        mazeMap.value.MovePlayer_B(moveDirection.value);
+        mazeMap.value.countAndExecShaddow_B();
         textMessage.value = mazeMap.value.message_B;
-        updateDirection();
+        gameInfo.value = mazeMap.value.getGameInfo();
+        changeState(
+            GameInfo.reverseGameInfo(gameInfo.value, mazeMap.value), yourRole);
+        bool res = mazeMap.value.checkTheFinish_B();
+        if (res) {
+          mainCtrl.vinner = 'B';
+          countFinal('B');
+          if (_timer != null) {
+            _timer.cancel();
+            _timer = null;
+          }
+        }
       }
-      textMessage.value = mazeMap.value.message_A;
       update();
     });
+  }
+
+  void changeState(GameInfo gameInfo, String role) async {
+    print(role);
+    if (role == 'A') {
+      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+        'GameInfo_A': gameInfo.toJson(),
+      });
+    } else if (role == 'B') {
+      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+        'GameInfo_B': gameInfo.toJson(),
+      });
+    }
+  }
+
+  void coordinatesOfEnemy_for_A(String gameInfo_B) {
+    var gameInfo = GameInfo.fromJson(gameInfo_B);
+    mazeMap.value.Player_B_Coord = gameInfo.Player_B_Coord;
+    mazeMap.value.Frozen_trap_B = gameInfo.Frozen_trap_B;
+    mazeMap.value.DoorTeleport_B = gameInfo.DoorTeleport_B;
+    mazeMap.value.ExitTeleport_B = gameInfo.ExitTeleport_B;
+  }
+
+  void coordinatesOfEnemy_for_B(String gameInfo_A) {
+    var gameInfo =
+        GameInfo.reverseGameInfo(GameInfo.fromJson(gameInfo_A), mazeMap.value);
+    mazeMap.value.Player_A_Coord = gameInfo.Player_A_Coord;
+    mazeMap.value.Frozen_trap_A = gameInfo.Frozen_trap_A;
+    mazeMap.value.DoorTeleport_A = gameInfo.DoorTeleport_A;
+    mazeMap.value.ExitTeleport_A = gameInfo.ExitTeleport_A;
   }
 
   void B_finish_game() async {
@@ -211,6 +240,14 @@ class FightController extends GetxController {
         .collection('gameList')
         .doc(gameId.value)
         .update({'Player_B_ready': false});
+    Get.offNamed(Routes.FINISH_PAGE);
+  }
+
+  void A_finish_game() async {
+    await firebaseFirestore
+        .collection('gameList')
+        .doc(gameId.value)
+        .update({'Player_A_ready': false});
     Get.offNamed(Routes.FINISH_PAGE);
   }
 

@@ -33,10 +33,10 @@ class EndGameScreen extends StatelessWidget {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(controller.isVinner
+                        Text(controller.YourCurrentRole.value == controller.vinner
                             ? 'YOU VINN'
-                            : 'YOU LOSE', style: TextStyle(fontSize: 25, color: controller.isVinner ? Colors.green : Colors.red, fontWeight: FontWeight.bold),),
-                        Text(controller.isVinner ? '+ 2 points' : '- 1 point', style: const TextStyle(fontSize: 18)),
+                            : 'YOU LOSE', style: TextStyle(fontSize: 25, color: controller.YourCurrentRole.value == controller.vinner ? Colors.green : Colors.red, fontWeight: FontWeight.bold),),
+                        Text(controller.YourCurrentRole.value == controller.vinner ? '+ 2 points' : '- 1 point', style: const TextStyle(fontSize: 18)),
                         ElevatedButton(
                             onPressed: () {
                               controller.deleteMultiplayerGameInstant();
