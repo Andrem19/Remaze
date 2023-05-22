@@ -202,6 +202,7 @@ class FightController extends GetxController {
         bool b_used_teleport = data['B_used_teleport'];
         if (b_used_teleport) {
           mazeMap.value.ExitTeleport_A.isInit = false;
+          mazeMap.value.message_A = 'Your anemy fell in your trap teleport';
         }
         if (gameStatus == 'finish') {
           A_finish_game();
@@ -213,6 +214,7 @@ class FightController extends GetxController {
         bool a_used_teleport = data['A_used_teleport'];
         if (a_used_teleport) {
           mazeMap.value.ExitTeleport_B.isInit = false;
+          mazeMap.value.message_B = 'Your anemy fell in your trap teleport';
         }
         if (gameStatus == 'finish') {
           B_finish_game();
