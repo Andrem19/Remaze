@@ -5,156 +5,45 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
-import 'package:remaze/models/game_info.dart';
 
 import '../keys.dart';
+import '../models/game_info.dart';
 import '../models/maze_map.dart';
 import 'main_game_controller.dart';
 
-class SearchRivalController extends GetxController {
+class InviteToBattle extends GetxController {
+  MainGameController mainCtrl = Get.find<MainGameController>();
+  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   String gameId = '';
   RxString gameStatus = 'searching...'.obs;
   RxString nameOfMap = 'searching...'.obs;
-  MainGameController mainCtrl = Get.find<MainGameController>();
   Rx<bool> startButtonShow = false.obs;
   late Stream<DocumentSnapshot<Map<String, dynamic>>> snapshots;
   late StreamSubscription<DocumentSnapshot<Map<String, dynamic>>> listner;
-  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
   @override
-  void onInit() {
-    _adPlayerToQueueOrFindRival();
-    super.onInit();
-  }
-
-  @override
-  void onClose() async {
-    await chekIfNeedToDelete();
+  void onClose() {
     listner.cancel();
     super.onClose();
   }
 
-  void _adPlayerToQueueOrFindRival() async {
-    var playerList = await FirebaseFirestore.instance
-        .collection('gameList')
-        .where('gameStatus', isEqualTo: 'searching')
-        .get();
-
-    if (playerList.docs.length < 1) {
-      _addPlayerToList();
-    } else {
-      await FirebaseFirestore.instance
-          .collection('gameList')
-          .doc(playerList.docs[0].id)
+  @override
+  void onInit() async {
+    if (mainCtrl.YourCurrentRole.value == 'A') {
+      await _addPlayerToList();
+      print('game_id: ${mainCtrl.currentmultiplayerGameId}');
+      await firebaseFirestore
+          .collection('users')
+          .doc(mainCtrl.playerWhoIInvite_ID)
           .update({
-        'Player_B_uid': mainCtrl.player.value.uid,
-        'Player_B_Name': mainCtrl.player.value.uid,
-        'gameStatus': 'waiting'
+        'isAnybodyAscMe': true,
+        'whoInviteMeToPlay': mainCtrl.player.value.userName,
+        'theGameIdInviteMe': mainCtrl.currentmultiplayerGameId
       });
-      var data = playerList.docs[0].data();
-
-      mainCtrl.currentMapId = data['Map_Id'];
-      var maps = await FirebaseFirestore.instance
-          .collection('maps')
-          .where('id', isEqualTo: mainCtrl.currentMapId)
-          .get();
-      if (maps.docs.length > 0) {
-        var data = maps.docs[0].data();
-        mainCtrl.currentGameMap = MazeMap.fromJson(data['map']);
-        prepareMapToGame();
-      }
-      mainCtrl.currentmultiplayerGameId = playerList.docs[0].id;
-      mainCtrl.currentMapName = data['MapName'];
-      mainCtrl.YourCurrentRole.value = 'B';
-      startGameStream(playerList.docs[0].id);
+    } else if (mainCtrl.YourCurrentRole.value == 'B') {
+      startGameStream();
     }
-  }
-
-  void startGameStream(String id) async {
-    print(id);
-    mainCtrl.currentmultiplayerGameId = id;
-    snapshots =
-        FirebaseFirestore.instance.collection('gameList').doc(id).snapshots();
-    listner = snapshots.listen((snapshot) {
-      print(1);
-      if (snapshot.exists) {
-        print(2);
-        var data = snapshot.data();
-
-        gameStatus.value = data!['gameStatus'];
-        if (gameStatus.value == 'waiting') {
-          print(3);
-          startButtonShow.value = true;
-          update();
-        }
-        if (gameStatus.value == 'playing') {
-          print(4);
-          gameStatus.value = 'game';
-          Get.offNamed(Routes.ACT_PLAYER_ACREEN);
-          firebaseFirestore
-              .collection('gameList')
-              .doc(mainCtrl.currentmultiplayerGameId)
-              .update({
-            'gameStatus': 'game',
-          });
-        }
-      } else {
-        print('Document does not exist');
-      }
-    });
-    update();
-  }
-
-  void toPlay() async {
-    try {
-      var doc = await firebaseFirestore
-          .collection('gameList')
-          .doc(mainCtrl.currentmultiplayerGameId)
-          .get();
-      if (mainCtrl.YourCurrentRole.value == 'A') {
-        await firebaseFirestore
-            .collection('gameList')
-            .doc(mainCtrl.currentmultiplayerGameId)
-            .update({
-          'Player_A_ready': true,
-        });
-        if (doc.data()!['Player_B_ready'] == true) {
-          await firebaseFirestore
-              .collection('gameList')
-              .doc(mainCtrl.currentmultiplayerGameId)
-              .update({
-            'gameStatus': 'playing',
-          });
-          // Get.toNamed(Routes.ACT_PLAYER_ACREEN);
-        }
-      } else if (mainCtrl.YourCurrentRole.value == 'B') {
-        await firebaseFirestore
-            .collection('gameList')
-            .doc(mainCtrl.currentmultiplayerGameId)
-            .update({
-          'Player_B_ready': true,
-        });
-        if (doc.data()!['Player_A_ready'] == true) {
-          await firebaseFirestore
-              .collection('gameList')
-              .doc(mainCtrl.currentmultiplayerGameId)
-              .update({
-            'gameStatus': 'playing',
-          });
-          // Get.toNamed(Routes.ACT_PLAYER_ACREEN);
-        }
-      }
-    } on FirebaseException catch (error) {
-      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-        content: Text(error.code),
-        backgroundColor: Colors.red,
-      ));
-    } catch (error) {
-      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-        content: Text('3: ${error.toString()}'),
-        backgroundColor: Colors.red,
-      ));
-    }
+    super.onInit();
   }
 
   Future<bool> _addPlayerToList() async {
@@ -162,7 +51,8 @@ class SearchRivalController extends GetxController {
     print(res);
     if (res) {
       try {
-        var doc = await firebaseFirestore.collection('gameList').add({
+        var doc = await firebaseFirestore.collection('gameBattle').add({
+          'IcantPlay': false,
           'MapName': mainCtrl.currentMapName,
           'Map_Id': mainCtrl.currentMapId,
           'Player_A_uid': mainCtrl.player.value.uid,
@@ -184,7 +74,8 @@ class SearchRivalController extends GetxController {
         mainCtrl.YourCurrentRole.value = 'A';
         nameOfMap.value = mainCtrl.currentMapName ?? '';
         gameId = doc.id;
-        startGameStream(doc.id);
+        mainCtrl.currentmultiplayerGameId = doc.id;
+        startGameStream();
         return true;
       } on FirebaseException catch (error) {
         Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
@@ -203,17 +94,96 @@ class SearchRivalController extends GetxController {
     return false;
   }
 
-  Future<void> chekIfNeedToDelete() async {
-    if (gameId != '') {
-      var doc =
-          await firebaseFirestore.collection('gameList').doc(gameId).get();
-      if (doc.exists) {
-        var data = doc.data();
-        String status = data!['gameStatus'] as String;
-        if (status == 'searching' || status == 'waiting') {
-          await firebaseFirestore.collection('gameList').doc(gameId).delete();
+  void startGameStream() async {
+    snapshots = FirebaseFirestore.instance
+        .collection('gameBattle')
+        .doc(mainCtrl.currentmultiplayerGameId)
+        .snapshots();
+    listner = snapshots.listen((snapshot) {
+      if (snapshot.exists) {
+        var data = snapshot.data();
+        gameStatus.value = data!['gameStatus'];
+        bool IcantPlay = data['IcantPlay'];
+        if (IcantPlay) {
+          listner.cancel();
+          firebaseFirestore
+              .collection('gameBattle')
+              .doc(mainCtrl.currentmultiplayerGameId)
+              .delete();
+          Get.offNamed(Routes.GENERAL_MENU);
+          Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+            content: Text('Player refuses to play'),
+            backgroundColor: Colors.red,
+          ));
+        }
+        if (gameStatus.value == 'waiting') {
+          startButtonShow.value = true;
+          update();
+        }
+        if (gameStatus.value == 'playing') {
+          gameStatus.value = 'game';
+          Get.offNamed(Routes.FIGHT_BATTLE_ACT);
+          firebaseFirestore
+              .collection('gameList')
+              .doc(mainCtrl.currentmultiplayerGameId)
+              .update({
+            'gameStatus': 'game',
+          });
+        }
+      } else {
+        print('Document does not exist');
+      }
+    });
+    update();
+  }
+
+  void toPlay() async {
+    try {
+      var doc = await firebaseFirestore
+          .collection('gameBattle')
+          .doc(mainCtrl.currentmultiplayerGameId)
+          .get();
+      if (mainCtrl.YourCurrentRole.value == 'A') {
+        await firebaseFirestore
+            .collection('gameBattle')
+            .doc(mainCtrl.currentmultiplayerGameId)
+            .update({
+          'Player_A_ready': true,
+        });
+        if (doc.data()!['Player_B_ready'] == true) {
+          await firebaseFirestore
+              .collection('gameBattle')
+              .doc(mainCtrl.currentmultiplayerGameId)
+              .update({
+            'gameStatus': 'playing',
+          });
+        }
+      } else if (mainCtrl.YourCurrentRole.value == 'B') {
+        await firebaseFirestore
+            .collection('gameBattle')
+            .doc(mainCtrl.currentmultiplayerGameId)
+            .update({
+          'Player_B_ready': true,
+        });
+        if (doc.data()!['Player_A_ready'] == true) {
+          await firebaseFirestore
+              .collection('gameBattle')
+              .doc(mainCtrl.currentmultiplayerGameId)
+              .update({
+            'gameStatus': 'playing',
+          });
         }
       }
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text('3: ${error.toString()}'),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 

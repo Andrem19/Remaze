@@ -14,21 +14,20 @@ class GeneralMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MainGameController mainCtrl = Get.find<MainGameController>();
-    return GetBuilder<MainGameController>(
-      builder: (controller) {
+    return GetBuilder<MainGameController>(builder: (controller) {
       return Scaffold(
         body: Center(
           child: Container(
             decoration: kIsWeb
-                  ? BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Color.fromARGB(255, 72, 68, 68),
-                      boxShadow: [
-                        BoxShadow(color: Colors.green, spreadRadius: 3),
-                      ],
-                    )
-                  : const BoxDecoration(),
-              width: kIsWeb ? Get.size.width / 3 : Get.size.width,
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Color.fromARGB(255, 72, 68, 68),
+                    boxShadow: [
+                      BoxShadow(color: Colors.green, spreadRadius: 3),
+                    ],
+                  )
+                : const BoxDecoration(),
+            width: kIsWeb ? Get.size.width / 3 : Get.size.width,
             child: Scaffold(
               appBar: AppBar(
                 actions: [
@@ -65,7 +64,8 @@ class GeneralMenu extends StatelessWidget {
                               color: Colors.white,
                               height: 200,
                               width: 200,
-                              child: Image.asset('assets/images/maze_preview.jpg'),
+                              child:
+                                  Image.asset('assets/images/maze_preview.jpg'),
                             );
                           }
                         }),
@@ -107,7 +107,7 @@ class GeneralMenu extends StatelessWidget {
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold)),
                               onPressed: () {
-                                Get.toNamed(Routes.QUESTS);
+                                controller.invitePlayerForBattle();
                               },
                             ),
                           )),
@@ -158,7 +158,9 @@ class GeneralMenu extends StatelessWidget {
                                 textStyle: const TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold)),
-                            onPressed: () {},
+                            onPressed: () {
+                              Get.toNamed(Routes.GENERAL_LEADERBOARD);
+                            },
                           ),
                         ),
                       ),

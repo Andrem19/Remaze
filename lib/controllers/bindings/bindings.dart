@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
+import 'package:remaze/controllers/battle_controller.dart';
 import 'package:remaze/controllers/fight_controller.dart';
 import 'package:remaze/controllers/game_menu_controller.dart';
+import 'package:remaze/controllers/invite_to_battle.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/map_editor_controller.dart';
 import 'package:remaze/controllers/qr_controller.dart';
@@ -60,6 +62,18 @@ class SearchRivalBinding extends Bindings {
   @override
   void dependencies() {
     Get.put(SearchRivalController(), permanent: false);
+  }
+}
+class InviteToBattleBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(InviteToBattle(), permanent: false);
+  }
+}
+class BattleControllerBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(BattleController(), permanent: false);
   }
 }
 

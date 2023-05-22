@@ -19,28 +19,26 @@ class SkillElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<FightController>(builder: (controller) {
-      return Opacity(
-        opacity: activate ? 0.4 : 0.7,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.black,
-              // radius: activate ? Get.size.width / 25 : Get.size.width / 11,
-              child: CircleAvatar(
-                radius: Get.size.width / 11,
-                backgroundImage: AssetImage(img),
-              ),
+    return Opacity(
+      opacity: activate ? 0.4 : 0.7,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircleAvatar(
+            backgroundColor: Colors.black,
+            // radius: activate ? Get.size.width / 25 : Get.size.width / 11,
+            child: CircleAvatar(
+              radius: Get.size.width / 11,
+              backgroundImage: AssetImage(img),
             ),
-            Center(
-                child: Text(
-              text,
-              style: TextStyle(fontSize: activate ? 10 : 20),
-            ))
-          ],
-        ),
-      );
-    });
+          ),
+          Center(
+              child: Text(
+            text,
+            style: TextStyle(fontSize: activate ? 10 : 20),
+          ))
+        ],
+      ),
+    );
   }
 }

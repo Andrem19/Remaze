@@ -11,7 +11,7 @@ class GameActController extends GetxController {
   GameActController({required this.mazeMap, required this.mapId});
 
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  
+
   String mapId;
   int durationOfAct = 600;
   late int time;
@@ -37,6 +37,7 @@ class GameActController extends GetxController {
   // MazeMap get mazeMap => _mazeMap.value;
   @override
   void onInit() {
+    Get.find<MainGameController>().changeStatusInGame(true);
     time = durationOfAct;
     runEngine();
     super.onInit();
@@ -44,6 +45,7 @@ class GameActController extends GetxController {
 
   @override
   void onClose() {
+    Get.find<MainGameController>().changeStatusInGame(false);
     stopEngine();
     super.onClose();
   }

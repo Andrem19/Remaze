@@ -1,22 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
-import 'package:remaze/models/maze_map.dart';
-import 'package:remaze/views/game/multiplayer_game_act.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:isolate';
 
 import '../keys.dart';
 import '../models/game_info.dart';
-import '../services/converter.dart';
+import '../models/maze_map.dart';
+import 'main_game_controller.dart';
 
-class FightController extends GetxController {
+class BattleController extends GetxController {
   late Rx<MazeMap> mazeMap;
   late Stream<DocumentSnapshot<Map<String, dynamic>>> snapshots;
   late StreamSubscription<DocumentSnapshot<Map<String, dynamic>>> listner;
@@ -39,7 +33,6 @@ class FightController extends GetxController {
   Rx<String> _yourRole = 'A'.obs;
   String get yourRole => _yourRole.value;
   Rx<String> textMessage = ''.obs;
-
   Rx<Direction> moveDirection = Direction.up.obs;
   var _timer;
 
@@ -53,8 +46,7 @@ class FightController extends GetxController {
   @override
   void onClose() async {
     await PlayerNotReady();
-    mainCtrl.refreshUserState();
-    mainCtrl.deleteMultiplayerGameInstant();
+    mainCtrl.deleteBattleGameInstant();
     mainCtrl.changeStatusInGame(false);
     if (_timer != null) {
       _timer.cancel();
@@ -66,38 +58,15 @@ class FightController extends GetxController {
 
   void countFinal(String vinner) async {
     try {
-      var doc = await firebaseFirestore
-          .collection('gameList')
+      await firebaseFirestore
+          .collection('gameBattle')
           .doc(gameId.value)
-          .get();
-      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+          .update({
         'vinner': vinner,
       });
-      var data = doc.data();
-
-      String uidPlayer_A = data!['Player_A_uid'] as String;
-      String uidPlayer_B = data['Player_B_uid'] as String;
-
-      var userA =
-          await firebaseFirestore.collection('users').doc(uidPlayer_A).get();
-      var userB =
-          await firebaseFirestore.collection('users').doc(uidPlayer_B).get();
-      var userAData = userA.data();
-      int pointsA = userAData!['points'] as int;
-      int resPointA = vinner == 'A' ? pointsA + 2 : pointsA - 1;
-      await firebaseFirestore.collection('users').doc(uidPlayer_A).update({
-        'points': resPointA,
-      });
-      var userBData = userB.data();
-      int pointsB = userBData!['points'] as int;
-      int resPointB = vinner == 'B' ? pointsB + 2 : pointsB - 1;
-      await firebaseFirestore.collection('users').doc(uidPlayer_B).update({
-        'points': resPointB,
-      });
-
       listner.cancel();
 
-      Get.offNamed(Routes.FINISH_PAGE);
+      Get.offNamed(Routes.END_GAME_SCREEN);
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
         content: Text(error.code),
@@ -114,60 +83,28 @@ class FightController extends GetxController {
   Future<void> PlayerNotReady() async {
     String vinner = '';
     var doc =
-        await firebaseFirestore.collection('gameList').doc(gameId.value).get();
+        await firebaseFirestore.collection('gameBattle').doc(gameId.value).get();
     if (doc.exists) {
       var data = doc.data();
       String gameVinner = data!['vinner'];
       if (gameVinner != yourRole) {
         vinner = yourRole == 'A' ? 'B' : 'A';
-        String uidPlayer_A = data!['Player_A_uid'] as String;
-        String uidPlayer_B = data['Player_B_uid'] as String;
-        if (vinner == 'A') {
-          bool plAready = data!['Player_A_ready'];
-          print('plAready: $plAready');
-          if (plAready) {
-            await countPoints(uidPlayer_A, uidPlayer_B, vinner);
-          }
-        } else if (vinner == 'B') {
-          bool plBready = data!['Player_B_ready'];
-          print('plBready: $plBready');
-          if (plBready) {
-            await countPoints(uidPlayer_A, uidPlayer_B, vinner);
-          }
-        }
       } else {
         vinner = yourRole;
       }
     }
     if (yourRole == 'A') {
-      await firebaseFirestore.collection('gameList').doc(gameId.value).update(
-          {'gameStatus': 'finish', 'Player_A_ready': false, 'vinner': vinner});
+      await firebaseFirestore
+          .collection('gameBattle')
+          .doc(gameId.value)
+          .update({'gameStatus': 'finish', 'Player_A_ready': false});
     } else {
-      await firebaseFirestore.collection('gameList').doc(gameId.value).update(
-          {'gameStatus': 'finish', 'Player_B_ready': false, 'vinner': vinner});
+      await firebaseFirestore
+          .collection('gameBattle')
+          .doc(gameId.value)
+          .update({'gameStatus': 'finish', 'Player_B_ready': false});
     }
     mainCtrl.vinner = vinner;
-  }
-
-  Future<void> countPoints(
-      String uidPlayer_A, String uidPlayer_B, String vinner) async {
-    print('countpoints__');
-    var userA =
-        await firebaseFirestore.collection('users').doc(uidPlayer_A).get();
-    var userB =
-        await firebaseFirestore.collection('users').doc(uidPlayer_B).get();
-    var userAData = userA.data();
-    int pointsA = userAData!['points'] as int;
-    int resPointA = vinner == 'A' ? pointsA + 2 : pointsA - 1;
-    await firebaseFirestore.collection('users').doc(uidPlayer_A).update({
-      'points': resPointA,
-    });
-    var userBData = userB.data();
-    int pointsB = userBData!['points'] as int;
-    int resPointB = vinner == 'B' ? pointsB + 2 : pointsB - 1;
-    await firebaseFirestore.collection('users').doc(uidPlayer_B).update({
-      'points': resPointB,
-    });
   }
 
   Future<void> setUpVars() async {
@@ -191,7 +128,7 @@ class FightController extends GetxController {
     await setUpVars();
     userControl();
     snapshots = FirebaseFirestore.instance
-        .collection('gameList')
+        .collection('gameBattle')
         .doc(gameId.value)
         .snapshots();
     listner = snapshots.listen((data) {
@@ -268,11 +205,11 @@ class FightController extends GetxController {
 
   void changeUsedteleport() async {
     if (yourRole == 'A') {
-      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+      await firebaseFirestore.collection('gameBattle').doc(gameId.value).update({
         'A_used_teleport': true,
       });
     } else {
-      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+      await firebaseFirestore.collection('gameBattle').doc(gameId.value).update({
         'B_used_teleport': true,
       });
     }
@@ -281,11 +218,17 @@ class FightController extends GetxController {
   void changeState(GameInfo gameInfo, String role) async {
     print(role);
     if (role == 'A') {
-      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+      await firebaseFirestore
+          .collection('gameBattle')
+          .doc(gameId.value)
+          .update({
         'GameInfo_A': gameInfo.toJson(),
       });
     } else if (role == 'B') {
-      await firebaseFirestore.collection('gameList').doc(gameId.value).update({
+      await firebaseFirestore
+          .collection('gameBattle')
+          .doc(gameId.value)
+          .update({
         'GameInfo_B': gameInfo.toJson(),
       });
     }
@@ -310,18 +253,18 @@ class FightController extends GetxController {
 
   void B_finish_game() async {
     await firebaseFirestore
-        .collection('gameList')
+        .collection('gameBattle')
         .doc(gameId.value)
         .update({'Player_B_ready': false});
-    Get.offNamed(Routes.FINISH_PAGE);
+    Get.offNamed(Routes.END_GAME_SCREEN);
   }
 
   void A_finish_game() async {
     await firebaseFirestore
-        .collection('gameList')
+        .collection('gameBattle')
         .doc(gameId.value)
         .update({'Player_A_ready': false});
-    Get.offNamed(Routes.FINISH_PAGE);
+    Get.offNamed(Routes.END_GAME_SCREEN);
   }
 
   void setUpFrozen() async {

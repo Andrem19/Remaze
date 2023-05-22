@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:remaze/controllers/routing/app_pages.dart';
 import 'package:remaze/models/maze_map.dart';
 import 'package:remaze/models/palyer.dart';
+import 'package:remaze/services/dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +18,8 @@ import '../keys.dart';
 class MainGameController extends GetxController with WidgetsBindingObserver {
   // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('d97e021d-bcde-448b-aa4b-bd4873e09973').snapshots();
   MazeMap? currentGameMap;
+  String playerWhoIInvite_ID = '';
+  bool IsUserInGame = false;
   String? currentMapId;
   String? currentMapName;
   String currentmultiplayerGameId = '';
@@ -26,6 +32,9 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
   Rx<Player> player = Player(uid: 'uid', userName: 'userName').obs;
   Rx<int> points = 0.obs;
   String vinner = '';
+  late Stream<DocumentSnapshot<Map<String, dynamic>>> snapshots;
+  late StreamSubscription<DocumentSnapshot<Map<String, dynamic>>> listner;
+  bool openDialog = false;
 
   TextEditingController targetQrCode = TextEditingController();
   Rx<TextEditingController> userNameController = TextEditingController().obs;
@@ -51,7 +60,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    destroyListner();
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
   }
@@ -66,6 +75,30 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
       print("RESUME -------");
       appOpenAdManager.showAdIfAvailable();
       isPaused = false;
+    }
+  }
+
+  void invitePlayerForBattle() async {
+    var doc = await firebaseFirestore
+        .collection('users')
+        .where('name', isEqualTo: playerSearch.text)
+        .get();
+    if (doc.docs.length > 0) {
+      var data = doc.docs[0].data();
+      bool status = data['isUserInGame'] as bool;
+      if (status) {
+        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+          content: Text('This user currently playing another game'),
+          backgroundColor: Colors.red,
+        ));
+        return;
+      } else {
+        changeStatusInGame(true);
+        YourCurrentRole.value = 'A';
+        playerWhoIInvite_ID = doc.docs[0].id;
+        Get.toNamed(Routes.INVITE_BATTLE);
+        playerSearch.clear();
+      }
     }
   }
 
@@ -96,6 +129,24 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
     }
   }
 
+  void deleteBattleGameInstant() async {
+    var doc = await firebaseFirestore
+        .collection('gameBattle')
+        .doc(currentmultiplayerGameId)
+        .get();
+    if (doc.exists) {
+      var data = doc.data();
+      bool Player_A = data!['Player_A_ready'];
+      bool Player_B = data['Player_B_ready'];
+      if (!Player_A && !Player_B) {
+        await firebaseFirestore
+            .collection('gameBattle')
+            .doc(currentmultiplayerGameId)
+            .delete();
+      }
+    }
+  }
+
   Future<void> authenticate() async {
     secretToken.value = pref.getString('secretToken') ?? 'none';
     if (secretToken.value == 'none') {
@@ -104,6 +155,121 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
       await checkUserAuth();
     }
     setUserNameController();
+    await setUpListner(player.value.uid);
+  }
+
+  Future<void> setUpListner(String userId) async {
+    snapshots =
+        FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
+    listner = snapshots.listen((data) {
+      bool isAnybodyAscMe = data['isAnybodyAscMe'];
+      String whoAskMe = data['whoInviteMeToPlay'];
+      String theGameIdInviteMe = data['theGameIdInviteMe'];
+      print('game_id: $theGameIdInviteMe');
+      if (isAnybodyAscMe) {
+        firebaseFirestore.collection('users').doc(player.value.uid).update({
+          'isAnybodyAscMe': false,
+        });
+        changeStatusInGame(true);
+        Get.dialog(AlertDialog(
+            title: Text('$whoAskMe invite your to the game'),
+            content: const Text('Do you want to play?'),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    textStyle: const TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold)),
+                onPressed: () {
+                  changeStatusInGame(false);
+                  firebaseFirestore
+                      .collection('gameBattle')
+                      .doc(theGameIdInviteMe)
+                      .update({
+                    'IcantPlay': true,
+                  });
+                  Get.back();
+                },
+                child: Text(
+                  'NO',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    textStyle: const TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold)),
+                onPressed: () {
+                  agreeToPlayPreparing(theGameIdInviteMe);
+                },
+                child: Text(
+                  'YES',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0),
+                ),
+              ),
+            ]));
+      }
+    });
+  }
+
+  Future<void> agreeToPlayPreparing(String theGameIdInviteMe) async {
+    try {
+      firebaseFirestore.collection('gameBattle').doc(theGameIdInviteMe).update({
+        'Player_B_uid': player.value.uid,
+        'Player_B_Name': player.value.uid,
+        'gameStatus': 'waiting'
+      });
+      var doc = await firebaseFirestore
+          .collection('gameBattle')
+          .doc(theGameIdInviteMe)
+          .get();
+
+      if (doc.exists) {
+        var data = doc.data();
+
+        currentMapId = data!['Map_Id'];
+        var maps = await FirebaseFirestore.instance
+            .collection('maps')
+            .where('id', isEqualTo: currentMapId)
+            .get();
+        if (maps.docs.length > 0) {
+          var data = maps.docs[0].data();
+          currentGameMap = MazeMap.fromJson(data['map']);
+          prepareMapToGame();
+        }
+        currentmultiplayerGameId = theGameIdInviteMe;
+        currentMapName = data['MapName'];
+        YourCurrentRole.value = 'B';
+      }
+      Get.toNamed(Routes.INVITE_BATTLE);
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+  void prepareMapToGame() {
+    currentGameMap!.shaddowRadius = 5;
+  }
+
+  void changeStatusInGame(bool status) {
+    firebaseFirestore.collection('users').doc(player.value.uid).update({
+      'IsUserInGame': status,
+    });
+    IsUserInGame = status;
+  }
+
+  void destroyListner() {
+    listner.cancel();
+    changeStatusInGame(false);
   }
 
   Future<void> checkUserAuth() async {
@@ -147,8 +313,13 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
     try {
       await firebaseFirestore.collection('users').doc(uid).set({
         'user': pl.toJson(),
+        'name': 'Pl-$part',
         'secretToken': secrTok,
         'migrationToken': '',
+        'isUserInGame': false,
+        'isAnybodyAscMe': false,
+        'whoInviteMeToPlay': '',
+        'theGameIdInviteMe': '',
         'points': 0,
       });
       player = pl.obs;
@@ -217,10 +388,15 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
 
   void updateName() async {
     await checkUserAuth();
+    bool res = await chekNameExist(userNameController.value.text);
+    if (res) {
+      return;
+    }
     try {
       player.value.userName = userNameController.value.text;
 
       await firebaseFirestore.collection('users').doc(player.value.uid).update({
+        'name': userNameController.value.text,
         'user': player.value.toJson(),
       });
       pref.setString('user', player.value.toJson());
@@ -229,6 +405,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
         content: Text('Name updated'),
         backgroundColor: Color.fromARGB(255, 54, 244, 67),
       ));
+      Get.back();
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
         content: Text(error.code),
@@ -240,6 +417,35 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
         backgroundColor: Colors.red,
       ));
     }
+  }
+
+  Future<bool> chekNameExist(String name) async {
+    try {
+      var doc = await firebaseFirestore
+          .collection('users')
+          .where('name', isEqualTo: name)
+          .get();
+      if (doc.docs.length > 0) {
+        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+          content: Text('This name exist. Create another name'),
+          backgroundColor: Colors.red,
+        ));
+        return true;
+      } else {
+        return false;
+      }
+    } on FirebaseException catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.code),
+        backgroundColor: Colors.red,
+      ));
+    } catch (error) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
+    return false;
   }
 
   void migrate() async {

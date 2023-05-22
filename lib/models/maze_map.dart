@@ -126,8 +126,6 @@ class MazeMap {
         ExitTeleport_B: ExitTeleport_B);
   }
 
-  
-
   void fromGameInfo(GameInfo info) {
     Player_A_Coord = info.Player_A_Coord;
     Player_B_Coord = info.Player_B_Coord;
@@ -179,10 +177,10 @@ class MazeMap {
     }
   }
 
-  void MovePlayer_A(Direction direction) {
+  bool MovePlayer_A(Direction direction) {
     if (Player_A_Frozen != 0) {
       Player_A_Frozen -= 1;
-      return;
+      return false;
     }
     message_A = '';
     switch (direction) {
@@ -233,24 +231,28 @@ class MazeMap {
       default:
     }
 
-    if (mazeMap[Player_B_Coord.row][Player_B_Coord.col].isFrozen_A_Here) {
-      Player_B_Frozen = 8;
-      message_A = 'Player was frozen';
+    if (Frozen_trap_B.row == Player_A_Coord.row &&
+        Frozen_trap_B.col == Player_A_Coord.col) {
+      Player_A_Frozen = 8;
+      message_B = 'Player was frozen';
     }
 
-    if (mazeMap[Player_A_Coord.row][Player_A_Coord.col].isTeleportDoor_B_Here) {
-      if (ExitTeleport_B.isInit) {
-        mazeMap[Player_A_Coord.row][Player_A_Coord.col].isPlayer_A_Here = false;
-        mazeMap[ExitTeleport_B.row][ExitTeleport_B.col].isPlayer_A_Here = true;
-        message_A = 'Teleport trap';
-      }
+    if (DoorTeleport_B.row == Player_A_Coord.row &&
+        DoorTeleport_B.col == Player_A_Coord.col &&
+        ExitTeleport_B.isInit) {
+      Player_A_Coord.row = ExitTeleport_B.row;
+      Player_A_Coord.col = ExitTeleport_B.col;
+      message_A = 'Teleport trap';
+      ExitTeleport_B.isInit = false;
+      return true;
     }
+    return false;
   }
 
-  void MovePlayer_B(Direction direction) {
+  bool MovePlayer_B(Direction direction) {
     if (Player_B_Frozen != 0) {
       Player_B_Frozen -= 1;
-      return;
+      return false;
     }
     message_B = '';
     switch (direction) {
@@ -300,18 +302,22 @@ class MazeMap {
         break;
       default:
     }
-    if (mazeMap[Player_A_Coord.row][Player_A_Coord.col].isFrozen_B_Here) {
-      Player_A_Frozen = 8;
+    if (Frozen_trap_A.row == Player_B_Coord.row &&
+        Frozen_trap_A.col == Player_B_Coord.col) {
+      Player_B_Frozen = 8;
       message_B = 'Player was frozen';
     }
 
-    if (mazeMap[Player_B_Coord.row][Player_B_Coord.col].isTeleportDoor_A_Here) {
-      if (ExitTeleport_A.isInit) {
-        mazeMap[Player_B_Coord.row][Player_B_Coord.col].isPlayer_B_Here = false;
-        mazeMap[ExitTeleport_A.row][ExitTeleport_A.col].isPlayer_B_Here = true;
-        message_B = 'Teleport trap';
-      }
+    if (DoorTeleport_A.row == Player_B_Coord.row &&
+        DoorTeleport_A.col == Player_B_Coord.col &&
+        ExitTeleport_A.isInit) {
+      Player_B_Coord.row = ExitTeleport_A.row;
+      Player_B_Coord.col = ExitTeleport_A.col;
+      message_B = 'Teleport trap';
+      ExitTeleport_A.isInit = false;
+      return true;
     }
+    return false;
   }
 
   bool checkTheFinish_A() {
@@ -323,7 +329,8 @@ class MazeMap {
   }
 
   bool checkTheFinish_B() {
-    if (Player_B_Coord.row == 0 && Player_B_Coord.col == mazeMap[0].length - 1) {
+    if (Player_B_Coord.row == 0 &&
+        Player_B_Coord.col == mazeMap[0].length - 1) {
       return true;
     }
     return false;

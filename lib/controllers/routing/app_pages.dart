@@ -1,10 +1,14 @@
 import 'package:get/get.dart';
 import 'package:remaze/controllers/bindings/bindings.dart';
+import 'package:remaze/controllers/invite_to_battle.dart';
 import 'package:remaze/views/editor/edit_menu.dart';
+import 'package:remaze/views/game/battle_act.dart';
 import 'package:remaze/views/game/end_game_screen.dart';
+import 'package:remaze/views/game/invite_and_wait.dart';
 import 'package:remaze/views/game/multiplayer_game_act.dart';
 import 'package:remaze/views/game/quests.dart';
 import 'package:remaze/views/game_splash_screen.dart';
+import 'package:remaze/views/general_leaderboard.dart';
 import 'package:remaze/views/general_menu.dart';
 import 'package:remaze/views/editor/map_editor.dart';
 import 'package:remaze/views/game/maze_game_act.dart';
@@ -14,6 +18,7 @@ import 'package:remaze/views/widgets/act_player_screen.dart';
 import 'package:remaze/views/widgets/qr_scanner.dart';
 
 import '../../splash_screen.dart';
+import '../../views/game/end_game_screen_battle.dart';
 import '../../views/game/search_rival.dart';
 
 part 'app_routes.dart';
@@ -83,6 +88,25 @@ class AppPages {
     GetPage(
       name: _Paths.FINISH_PAGE, 
       page: () => EndGameScreen(),
+    ),
+    GetPage(
+      name: _Paths.GENERAL_LEADERBOARD, 
+      page: () => GeneralLeaderboard(),
+      binding: GameMenuBinding()
+    ),
+    GetPage(
+      name: _Paths.INVITE_BATTLE, 
+      page: () => InviteWait(),
+      binding: InviteToBattleBinding()
+    ),
+    GetPage(
+      name: _Paths.FIGHT_BATTLE_ACT, 
+      page: () => BattleAct(),
+      binding: BattleControllerBinding()
+    ),
+    GetPage(
+      name: _Paths.END_GAME_SCREEN, 
+      page: () => EndGameScreenBattle(),
     ),
   ];
 }

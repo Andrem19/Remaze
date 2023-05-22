@@ -16,6 +16,10 @@ abstract class Routes {
   static const RIVAL_SEARCH = _Paths.RIVAL_SEARCH;
   static const ACT_PLAYER_ACREEN = _Paths.ACT_PLAYER_SCREEN;
   static const FINISH_PAGE = _Paths.FINISH_PAGE;
+  static const GENERAL_LEADERBOARD = _Paths.GENERAL_LEADERBOARD;
+  static const INVITE_BATTLE = _Paths.INVITE_BATTLE;
+  static const FIGHT_BATTLE_ACT = _Paths.FIGHT_BATTLE_ACT;
+  static const END_GAME_SCREEN = _Paths.END_GAME_SCREEN;
 }
 
 abstract class _Paths {
@@ -32,4 +36,8 @@ abstract class _Paths {
   static const RIVAL_SEARCH = "/rival_search";
   static const ACT_PLAYER_SCREEN = "/act_player_screen";
   static const FINISH_PAGE = "/finish_page";
+  static const GENERAL_LEADERBOARD = "/general_leaderboard";
+  static const INVITE_BATTLE = "/invite_battle";
+  static const FIGHT_BATTLE_ACT = "/fight_battle_act";
+  static const END_GAME_SCREEN = "/end_game_screen";
 }
