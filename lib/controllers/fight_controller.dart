@@ -226,6 +226,7 @@ class FightController extends GetxController {
 
   void userControl() {
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
+      moveDirection.value = mainCtrl.moveDir;
       if (_yourRole.value == 'A') {
         bool aUsedTeleport = mazeMap.value.MovePlayer_A(moveDirection.value);
         mazeMap.value.countAndExecShaddow_A();

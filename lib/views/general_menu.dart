@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:remaze/controllers/ad_controller.dart';
 import 'package:remaze/controllers/game_menu_controller.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
@@ -124,8 +125,13 @@ class GeneralMenu extends StatelessWidget {
                                 textStyle: const TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold)),
-                            onPressed: () {
-                              Get.toNamed(Routes.RIVAL_SEARCH);
+                            onPressed: () async {
+                              var adCtrl = Get.find<AdController>();
+                              if (adCtrl.interstitialVideoAd != null) {
+                                await adCtrl.interstitialVideoAd?.show();
+                              } else {
+                                Get.toNamed(Routes.RIVAL_SEARCH);
+                              }
                             },
                           ),
                         ),

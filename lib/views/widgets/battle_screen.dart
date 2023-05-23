@@ -11,6 +11,7 @@ import 'package:remaze/views/widgets/skills_widget.dart';
 import 'package:remaze/views/widgets/skills_widget_battle.dart';
 
 import '../../models/maze_map.dart';
+import 'controll.dart';
 import 'cube_widget_A.dart';
 
 class BattleScreen extends StatelessWidget {
@@ -33,17 +34,17 @@ class BattleScreen extends StatelessWidget {
             onDoubleTap: () {
               controller.showSkills.value = !controller.showSkills.value;
             },
-            onPanUpdate: (DragUpdateDetails details) {
-              if (details.delta.dx > 0) {
-                controller.moveDirection.value = Direction.right;
-              } else if (details.delta.dx < 0) {
-                controller.moveDirection.value = Direction.left;
-              } else if (details.delta.dy < 0) {
-                controller.moveDirection.value = Direction.up;
-              } else if (details.delta.dy > 0) {
-                controller.moveDirection.value = Direction.down;
-              }
-            },
+            // onPanUpdate: (DragUpdateDetails details) {
+            //   if (details.delta.dx > 0) {
+            //     controller.moveDirection.value = Direction.right;
+            //   } else if (details.delta.dx < 0) {
+            //     controller.moveDirection.value = Direction.left;
+            //   } else if (details.delta.dy < 0) {
+            //     controller.moveDirection.value = Direction.up;
+            //   } else if (details.delta.dy > 0) {
+            //     controller.moveDirection.value = Direction.down;
+            //   }
+            // },
             child: Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -82,7 +83,11 @@ class BattleScreen extends StatelessWidget {
               ),
             ],
           ),
-          SkillsWidgetBattle()
+          SkillsWidgetBattle(),
+          Positioned(
+            bottom: 15,
+            right: 15,
+            child: Control()),
         ],
       );
     });

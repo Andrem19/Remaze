@@ -31,7 +31,7 @@ class InviteToBattle extends GetxController {
   void onInit() async {
     if (mainCtrl.YourCurrentRole.value == 'A') {
       await _addPlayerToList();
-      print('game_id: ${mainCtrl.currentmultiplayerGameId}');
+
       await firebaseFirestore
           .collection('users')
           .doc(mainCtrl.playerWhoIInvite_ID)
@@ -48,7 +48,7 @@ class InviteToBattle extends GetxController {
 
   Future<bool> _addPlayerToList() async {
     bool res = await chooseRandomMap();
-    print(res);
+
     if (res) {
       try {
         var doc = await firebaseFirestore.collection('gameBattle').add({
@@ -106,6 +106,7 @@ class InviteToBattle extends GetxController {
         bool IcantPlay = data['IcantPlay'];
         if (IcantPlay) {
           listner.cancel();
+          mainCtrl.changeStatusInGame(false);
           firebaseFirestore
               .collection('gameBattle')
               .doc(mainCtrl.currentmultiplayerGameId)
@@ -195,13 +196,13 @@ class InviteToBattle extends GetxController {
           .limit(10)
           .get();
       int randomInt = Random().nextInt(maps.docs.length);
-      print(maps.docs[randomInt].exists);
+
       if (maps.docs[randomInt].exists) {
         mainCtrl.currentMapId = maps.docs[randomInt]['id'];
-        print(maps.docs[randomInt]['id']);
+
         mainCtrl.currentGameMap = MazeMap.fromJson(maps.docs[randomInt]['map']);
         mainCtrl.currentMapName = maps.docs[randomInt]['name'];
-        print(maps.docs[randomInt]['name']);
+
         prepareMapToGame();
         return true;
       } else {

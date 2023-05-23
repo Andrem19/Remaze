@@ -4,10 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/map_editor_controller.dart';
 
+import '../../controllers/ad_controller.dart';
 import '../../controllers/routing/app_pages.dart';
 
 class EditMenu extends StatelessWidget {
   const EditMenu({super.key});
+
+  Future<void> onBackPressed() async {
+    var adCtrl = Get.find<AdController>();
+    if (adCtrl.interstitialAd != null) {
+      adCtrl.interstitialAd?.show();
+    } else {
+      Get.back();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,22 +27,22 @@ class EditMenu extends StatelessWidget {
           body: Center(
             child: Container(
               decoration: kIsWeb
-                    ? BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color.fromARGB(255, 72, 68, 68),
-                        boxShadow: [
-                          BoxShadow(color: Colors.green, spreadRadius: 3),
-                        ],
-                      )
-                    : const BoxDecoration(),
-                width: kIsWeb ? Get.size.width / 3 : Get.size.width,
+                  ? BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color.fromARGB(255, 72, 68, 68),
+                      boxShadow: [
+                        BoxShadow(color: Colors.green, spreadRadius: 3),
+                      ],
+                    )
+                  : const BoxDecoration(),
+              width: kIsWeb ? Get.size.width / 3 : Get.size.width,
               child: Scaffold(
                 appBar: AppBar(
                   title: Center(child: const Text('MAPS')),
                   centerTitle: true,
                   leading: IconButton(
-                    onPressed: () {
-                      Get.back();
+                    onPressed: () async {
+                      await onBackPressed();
                     },
                     icon: Icon(
                       Icons.arrow_back,
@@ -48,15 +58,16 @@ class EditMenu extends StatelessWidget {
                         if (snapshot.hasError) {
                           return Text('Something went wrong');
                         }
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return Text("Loading");
                         }
-            
+
                         return ListView(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
-                          children:
-                              snapshot.data!.docs.map((DocumentSnapshot document) {
+                          children: snapshot.data!.docs
+                              .map((DocumentSnapshot document) {
                             Map<String, dynamic> data =
                                 document.data()! as Map<String, dynamic>;
                             return ListTile(
@@ -82,12 +93,13 @@ class EditMenu extends StatelessWidget {
                                   maxWidth: 50,
                                   maxHeight: 50,
                                 ),
-                                child: Image.asset('assets/images/maze_icon.png',
+                                child: Image.asset(
+                                    'assets/images/maze_icon.png',
                                     fit: BoxFit.cover),
                               ),
                               title: Text(data['name'].toString()),
-                              subtitle:
-                                  Text(data['author'].toString().substring(0, 20)),
+                              subtitle: Text(
+                                  data['author'].toString().substring(0, 20)),
                             );
                           }).toList(),
                         );
@@ -102,7 +114,8 @@ class EditMenu extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey,
                               textStyle: const TextStyle(
-                                  color: Colors.black, fontWeight: FontWeight.bold)),
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold)),
                           onPressed: () {
                             controller.createNewMap();
                           },

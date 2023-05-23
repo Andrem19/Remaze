@@ -71,24 +71,24 @@ class SearchRivalController extends GetxController {
   }
 
   void startGameStream(String id) async {
-    print(id);
+
     mainCtrl.currentmultiplayerGameId = id;
     snapshots =
         FirebaseFirestore.instance.collection('gameList').doc(id).snapshots();
     listner = snapshots.listen((snapshot) {
-      print(1);
+
       if (snapshot.exists) {
-        print(2);
+
         var data = snapshot.data();
 
         gameStatus.value = data!['gameStatus'];
         if (gameStatus.value == 'waiting') {
-          print(3);
+
           startButtonShow.value = true;
           update();
         }
         if (gameStatus.value == 'playing') {
-          print(4);
+
           gameStatus.value = 'game';
           Get.offNamed(Routes.ACT_PLAYER_ACREEN);
           firebaseFirestore
@@ -159,7 +159,6 @@ class SearchRivalController extends GetxController {
 
   Future<bool> _addPlayerToList() async {
     bool res = await chooseRandomMap();
-    print(res);
     if (res) {
       try {
         var doc = await firebaseFirestore.collection('gameList').add({
@@ -225,13 +224,13 @@ class SearchRivalController extends GetxController {
           .limit(10)
           .get();
       int randomInt = Random().nextInt(maps.docs.length);
-      print(maps.docs[randomInt].exists);
+
       if (maps.docs[randomInt].exists) {
         mainCtrl.currentMapId = maps.docs[randomInt]['id'];
-        print(maps.docs[randomInt]['id']);
+
         mainCtrl.currentGameMap = MazeMap.fromJson(maps.docs[randomInt]['map']);
         mainCtrl.currentMapName = maps.docs[randomInt]['name'];
-        print(maps.docs[randomInt]['name']);
+
         prepareMapToGame();
         return true;
       } else {

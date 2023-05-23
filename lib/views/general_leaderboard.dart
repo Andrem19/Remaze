@@ -5,8 +5,19 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/game_menu_controller.dart';
 
+import '../controllers/ad_controller.dart';
+
 class GeneralLeaderboard extends StatelessWidget {
   const GeneralLeaderboard({super.key});
+
+  Future<void> onBackPressed() async {
+    var adCtrl = Get.find<AdController>();
+    if (adCtrl.interstitialAd != null) {
+      adCtrl.interstitialAd?.show();
+    } else {
+      Get.back();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +39,8 @@ class GeneralLeaderboard extends StatelessWidget {
               appBar: AppBar(
                 title: Center(child: const Text('LEADERS')),
                 leading: IconButton(
-                  onPressed: () {
-                    Get.back();
+                  onPressed: () async {
+                    await onBackPressed();
                   },
                   icon: Icon(
                     Icons.arrow_back,

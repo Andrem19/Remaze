@@ -82,8 +82,10 @@ class BattleController extends GetxController {
 
   Future<void> PlayerNotReady() async {
     String vinner = '';
-    var doc =
-        await firebaseFirestore.collection('gameBattle').doc(gameId.value).get();
+    var doc = await firebaseFirestore
+        .collection('gameBattle')
+        .doc(gameId.value)
+        .get();
     if (doc.exists) {
       var data = doc.data();
       String gameVinner = data!['vinner'];
@@ -163,6 +165,7 @@ class BattleController extends GetxController {
 
   void userControl() {
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
+      moveDirection.value = mainCtrl.moveDir;
       if (_yourRole.value == 'A') {
         bool aUsedTeleport = mazeMap.value.MovePlayer_A(moveDirection.value);
         mazeMap.value.countAndExecShaddow_A();
@@ -207,11 +210,17 @@ class BattleController extends GetxController {
 
   void changeUsedteleport() async {
     if (yourRole == 'A') {
-      await firebaseFirestore.collection('gameBattle').doc(gameId.value).update({
+      await firebaseFirestore
+          .collection('gameBattle')
+          .doc(gameId.value)
+          .update({
         'A_used_teleport': true,
       });
     } else {
-      await firebaseFirestore.collection('gameBattle').doc(gameId.value).update({
+      await firebaseFirestore
+          .collection('gameBattle')
+          .doc(gameId.value)
+          .update({
         'B_used_teleport': true,
       });
     }

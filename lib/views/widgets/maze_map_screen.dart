@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:remaze/controllers/game_act_controller.dart';
+import 'package:remaze/views/widgets/controll.dart';
 import 'package:remaze/views/widgets/cube_widget.dart';
 import 'package:remaze/views/widgets/skills_widget.dart';
 
@@ -25,37 +26,24 @@ class MazeMapScreen extends StatelessWidget {
     }, builder: (controller) {
       return Stack(
         children: [
-          GestureDetector(
-            onPanUpdate: (DragUpdateDetails details) {
-              if (details.delta.dx > 0) {
-                controller.moveDirection.value = Direction.right;
-              } else if (details.delta.dx < 0) {
-                controller.moveDirection.value = Direction.left;
-              } else if (details.delta.dy < 0) {
-                controller.moveDirection.value = Direction.up;
-              } else if (details.delta.dy > 0) {
-                controller.moveDirection.value = Direction.down;
-              }
-            },
-            child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children:
-                    List.generate(controller.mazeMap.value.mazeMap.length, (row) {
-                  return Expanded(
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: List.generate(
-                            controller.mazeMap.value.mazeMap[row].length, (col) {
-                          return Expanded(
-                            child: CubeBrick(
-                                cubeProto: controller.mazeMap.value.mazeMap[row]
-                                    [col]),
-                          );
-                        })),
-                  );
-                }),
-              ),
+          Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children:
+                  List.generate(controller.mazeMap.value.mazeMap.length, (row) {
+                return Expanded(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: List.generate(
+                          controller.mazeMap.value.mazeMap[row].length, (col) {
+                        return Expanded(
+                          child: CubeBrick(
+                              cubeProto: controller.mazeMap.value.mazeMap[row]
+                                  [col]),
+                        );
+                      })),
+                );
+              }),
             ),
           ),
           Row(
@@ -72,6 +60,10 @@ class MazeMapScreen extends StatelessWidget {
                     Text(controller.textMessage.value, style: TextStyle(color: Colors.red),),
             ],
           ),
+          Positioned(
+            bottom: 15,
+            right: 15,
+            child: Control()),
         ],
       );
     });

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:remaze/controllers/ad_controller.dart';
 import 'package:remaze/controllers/battle_controller.dart';
 import 'package:remaze/controllers/fight_controller.dart';
 import 'package:remaze/controllers/game_menu_controller.dart';
@@ -16,6 +17,7 @@ class MainScreenBinding extends Bindings {
   @override
   void dependencies() {
     Get.put(MainGameController(), permanent: true);
+    Get.put(AdController(), permanent: true);
   }
 }
 
@@ -76,4 +78,3 @@ class BattleControllerBinding extends Bindings {
     Get.put(BattleController(), permanent: false);
   }
 }
-

@@ -15,6 +15,7 @@ class AdHelper {
   static String get interstitialAdUnitId {
     if (Platform.isAndroid) {
       return "ca-app-pub-3940256099942544/1033173712";
+      // return "ca-app-pub-2843487380084695/5304766480";
     } else if (Platform.isIOS) {
       return "ca-app-pub-3940256099942544/4411468910";
     } else {
@@ -25,6 +26,7 @@ class AdHelper {
   static String get interstitialVideoAdUnitId {
     if (Platform.isAndroid) {
       return "ca-app-pub-3940256099942544/8691691433";
+      // return "ca-app-pub-2843487380084695/1436839519";
     } else if (Platform.isIOS) {
       return "ca-app-pub-3940256099942544/5135589807";
     } else {

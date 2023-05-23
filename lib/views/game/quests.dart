@@ -8,10 +8,20 @@ import 'package:remaze/controllers/game_act_controller.dart';
 import 'package:remaze/controllers/game_menu_controller.dart';
 import 'package:remaze/views/widgets/map_tile.dart';
 
+import '../../controllers/ad_controller.dart';
 import '../../controllers/routing/app_pages.dart';
 
 class QuestsScreen extends StatelessWidget {
   const QuestsScreen({super.key});
+
+  Future<void> onBackPressed() async {
+    var adCtrl = Get.find<AdController>();
+    if (adCtrl.interstitialAd != null) {
+      adCtrl.interstitialAd?.show();
+    } else {
+      Get.back();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +45,8 @@ class QuestsScreen extends StatelessWidget {
                   title: Center(child: const Text('MAPS')),
                   centerTitle: true,
                   leading: IconButton(
-                    onPressed: () {
-                      Get.back();
+                    onPressed: () async {
+                      await onBackPressed();
                     },
                     icon: Icon(
                       Icons.arrow_back,
@@ -61,8 +71,8 @@ class QuestsScreen extends StatelessWidget {
                             prefixIcon: Icon(Icons.search),
                             hintMaxLines: 1,
                             border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.green, width: 4.0))),
+                                borderSide: BorderSide(
+                                    color: Colors.green, width: 4.0))),
                       ),
                     ),
                     StreamBuilder(
@@ -71,27 +81,30 @@ class QuestsScreen extends StatelessWidget {
                         if (snapshot.hasError) {
                           return Text('Something went wrong');
                         }
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return Text("Loading");
                         }
-            
+
                         return ListView(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
-                          children:
-                              snapshot.data!.docs.map((DocumentSnapshot document) {
+                          children: snapshot.data!.docs
+                              .map((DocumentSnapshot document) {
                             Map<String, dynamic> data =
                                 document.data()! as Map<String, dynamic>;
                             return ListTile(
                               trailing: FittedBox(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(right: 8),
                                       child: InkWell(
                                         onTap: () {
-                                          controller.loadMapChampions(data['id']);
+                                          controller
+                                              .loadMapChampions(data['id']);
                                           Get.toNamed(Routes.LEADERBOARD);
                                         },
                                         child: Icon(Icons.leaderboard),
@@ -106,8 +119,8 @@ class QuestsScreen extends StatelessWidget {
                                               color: Colors.black,
                                               fontWeight: FontWeight.bold)),
                                       onPressed: () {
-                                        controller
-                                            .prepareQuestGame(data['id'].toString());
+                                        controller.prepareQuestGame(
+                                            data['id'].toString());
                                       },
                                     ),
                                   ],
@@ -120,12 +133,13 @@ class QuestsScreen extends StatelessWidget {
                                   maxWidth: 50,
                                   maxHeight: 50,
                                 ),
-                                child: Image.asset('assets/images/maze_icon.png',
+                                child: Image.asset(
+                                    'assets/images/maze_icon.png',
                                     fit: BoxFit.cover),
                               ),
                               title: Text(data['name'].toString()),
-                              subtitle:
-                                  Text(data['author'].toString().substring(0, 20)),
+                              subtitle: Text(
+                                  data['author'].toString().substring(0, 20)),
                             );
                           }).toList(),
                         );

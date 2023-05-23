@@ -2,11 +2,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:remaze/controllers/ad_controller.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
 import 'package:remaze/views/widgets/custom_text_field.dart';
 
+import '../ad_helper.dart';
+
 class ProfileSettings extends StatelessWidget {
   const ProfileSettings({super.key});
+
+  Future<void> onBackPressed() async {
+    var adCtrl = Get.find<AdController>();
+    if (adCtrl.interstitialAd != null) {
+      adCtrl.interstitialAd?.show();
+    } else {
+      Get.back();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +41,8 @@ class ProfileSettings extends StatelessWidget {
                 appBar: AppBar(
                   title: Center(child: const Text('SETTINGS')),
                   leading: IconButton(
-                    onPressed: () {
-                      Get.back();
+                    onPressed: () async {
+                      await onBackPressed();
                     },
                     icon: Icon(
                       Icons.arrow_back,
@@ -71,8 +84,8 @@ class ProfileSettings extends StatelessWidget {
                                       RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18.0),
                               ))),
-                              onPressed: () {
-                                controller.updateName();
+                              onPressed: () async {
+                                await controller.updateName();
                               },
                               child: Text('Submit')),
                         ],

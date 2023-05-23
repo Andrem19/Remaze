@@ -11,7 +11,7 @@ class GameActController extends GetxController {
   GameActController({required this.mazeMap, required this.mapId});
 
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-
+  MainGameController mainCtrl = Get.find<MainGameController>();
   String mapId;
   int durationOfAct = 600;
   late int time;
@@ -61,7 +61,7 @@ class GameActController extends GetxController {
     mazeMap.value.countAndExecShaddow_A();
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
       // print(moveDirection.value.toString());
-
+      moveDirection.value = mainCtrl.moveDir;
       mazeMap.value.MovePlayer_A(moveDirection.value);
       mazeMap.value.countAndExecShaddow_A();
       time--;

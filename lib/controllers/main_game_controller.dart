@@ -44,6 +44,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
 
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
+  Direction moveDir = Direction.up;
 
   @override
   void onInit() async {
@@ -155,6 +156,10 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
       await checkUserAuth();
     }
     setUserNameController();
+    await firebaseFirestore.collection('users').doc(player.value.uid).update({
+      'isUserInGame': false,
+      'isAnybodyAscMe': false,
+    });
     await setUpListner(player.value.uid);
   }
 
@@ -262,7 +267,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
 
   void changeStatusInGame(bool status) {
     firebaseFirestore.collection('users').doc(player.value.uid).update({
-      'IsUserInGame': status,
+      'isUserInGame': status,
     });
     IsUserInGame = status;
   }
@@ -274,22 +279,24 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
 
   Future<void> checkUserAuth() async {
     String uid = pref.getString('uid') ?? 'none';
+    String secretT = pref.getString('secretToken') ?? 'none';
     if (uid == 'none') {
       registerNewUser();
     }
     try {
       var document = await firebaseFirestore.collection('users').doc(uid).get();
-      if (!document.exists) {
+      if (document.exists) {
+        var data = document.data();
+        Player recivedPlayer = Player.fromJson(data!['user']);
+        String token = data['secretToken'];
+        if (secretT != token) {
+          registerNewUser();
+        }
+        points.value = data['points'];
+        player.value = recivedPlayer;
+      } else {
         registerNewUser();
       }
-      var data = document.data();
-      Player recivedPlayer = Player.fromJson(data!['user']);
-      String token = data['secretToken'];
-      if (secretToken.value != token) {
-        registerNewUser();
-      }
-      points.value = data['points'];
-      player.value = recivedPlayer;
       update();
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
@@ -386,7 +393,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
     update();
   }
 
-  void updateName() async {
+  Future<void> updateName() async {
     await checkUserAuth();
     bool res = await chekNameExist(userNameController.value.text);
     if (res) {
@@ -394,18 +401,31 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
     }
     try {
       player.value.userName = userNameController.value.text;
-
-      await firebaseFirestore.collection('users').doc(player.value.uid).update({
-        'name': userNameController.value.text,
-        'user': player.value.toJson(),
-      });
-      pref.setString('user', player.value.toJson());
-      update();
-      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-        content: Text('Name updated'),
-        backgroundColor: Color.fromARGB(255, 54, 244, 67),
-      ));
-      Get.back();
+      var user = await firebaseFirestore
+          .collection('users')
+          .doc(player.value.uid)
+          .get();
+      if (user.exists) {
+        await firebaseFirestore
+            .collection('users')
+            .doc(player.value.uid)
+            .update({
+          'name': userNameController.value.text,
+          'user': player.value.toJson(),
+        });
+        await pref.setString('user', player.value.toJson());
+        update();
+        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+          content: Text('Name updated'),
+          backgroundColor: Color.fromARGB(255, 54, 244, 67),
+        ));
+        Get.back();
+      } else {
+        Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+          content: Text('User does not auth'),
+          backgroundColor: Colors.red,
+        ));
+      }
     } on FirebaseException catch (error) {
       Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
         content: Text(error.code),
