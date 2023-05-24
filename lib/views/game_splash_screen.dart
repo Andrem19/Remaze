@@ -12,7 +12,7 @@ class GameSplashScreen extends StatelessWidget {
     return AnimatedSplashScreen(
       duration: 1000,
       splash: Image.asset("assets/images/maze_preview.jpg"),
-      nextScreen: kIsWeb ? GeneralMenu() : const SplashScreen(),
+      nextScreen: GeneralMenu(),
       splashTransition: SplashTransition.scaleTransition,
       splashIconSize: 250,
       backgroundColor: Colors.black,

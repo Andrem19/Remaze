@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +17,6 @@ import '../AppOpenAdManager.dart';
 import '../keys.dart';
 
 class MainGameController extends GetxController with WidgetsBindingObserver {
-  // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('d97e021d-bcde-448b-aa4b-bd4873e09973').snapshots();
   MazeMap? currentGameMap;
   String playerWhoIInvite_ID = '';
   bool IsUserInGame = false;
@@ -42,20 +42,21 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
   Rx<TextEditingController> migrationToken = TextEditingController().obs;
   TextEditingController playerSearch = TextEditingController(text: '');
 
-  AppOpenAdManager appOpenAdManager = AppOpenAdManager();
+  // AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   Direction moveDir = Direction.up;
 
   @override
   void onInit() async {
-    if (!kIsWeb) {
-      appOpenAdManager.loadAd();
-      WidgetsBinding.instance.addObserver(this);
-    }
+    // if (!kIsWeb) {
+    //   appOpenAdManager.loadAd();
+    //   WidgetsBinding.instance.addObserver(this);
+    // }
     pref = await SharedPreferences.getInstance();
     // await pref.remove('secretToken');
     // await pref.remove('user');
     await authenticate();
+    await loadAudioAssets();
     super.onInit();
   }
 
@@ -66,25 +67,31 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.paused) {
-      isPaused = true;
-    }
-    if (state == AppLifecycleState.resumed && isPaused) {
-      print("RESUME -------");
-      appOpenAdManager.showAdIfAvailable();
-      isPaused = false;
-    }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   super.didChangeAppLifecycleState(state);
+  //   if (state == AppLifecycleState.paused) {
+  //     isPaused = true;
+  //   }
+  //   if (state == AppLifecycleState.resumed && isPaused) {
+  //     print("RESUME -------");
+  //     appOpenAdManager.showAdIfAvailable();
+  //     isPaused = false;
+  //   }
+  // }
+
+  void playButton() {
+    FlameAudio.play('button_change_direction.ogg');
   }
 
   void invitePlayerForBattle() async {
+    print(1);
     var doc = await firebaseFirestore
         .collection('users')
         .where('name', isEqualTo: playerSearch.text)
         .get();
     if (doc.docs.length > 0) {
+      print(2);
       var data = doc.docs[0].data();
       bool status = data['isUserInGame'] as bool;
       if (status) {
@@ -94,6 +101,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
         ));
         return;
       } else {
+        print(3);
         changeStatusInGame(true);
         YourCurrentRole.value = 'A';
         playerWhoIInvite_ID = doc.docs[0].id;
@@ -394,13 +402,15 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> updateName() async {
+    String normalizedName =
+        userNameController.value.text.replaceAll(RegExp(r'\s+'), '');
     await checkUserAuth();
-    bool res = await chekNameExist(userNameController.value.text);
+    bool res = await chekNameExist(normalizedName);
     if (res) {
       return;
     }
     try {
-      player.value.userName = userNameController.value.text;
+      player.value.userName = normalizedName;
       var user = await firebaseFirestore
           .collection('users')
           .doc(player.value.uid)
@@ -410,7 +420,7 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
             .collection('users')
             .doc(player.value.uid)
             .update({
-          'name': userNameController.value.text,
+          'name': normalizedName,
           'user': player.value.toJson(),
         });
         await pref.setString('user', player.value.toJson());
@@ -437,6 +447,11 @@ class MainGameController extends GetxController with WidgetsBindingObserver {
         backgroundColor: Colors.red,
       ));
     }
+  }
+
+  Future<void> loadAudioAssets() async {
+    await FlameAudio.audioCache
+        .loadAll(['button_change_direction.ogg', 'maze_general_theme.mp3', 'teleport.mp3', 'freeze.wav', 'victory.wav']);
   }
 
   Future<bool> chekNameExist(String name) async {

@@ -19,9 +19,9 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     appOpenAdManager.loadAd();
 
-    Future.delayed(const Duration(milliseconds: 5000)).then((value) {
+    Future.delayed(const Duration(milliseconds: 3000)).then((value) {
       appOpenAdManager.showAdIfAvailable();
-      Get.toNamed(Routes.GENERAL_MENU);
+      Get.toNamed(Routes.GAME_SPLASH_SCREEN);
     });
   }
 

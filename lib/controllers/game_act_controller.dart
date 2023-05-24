@@ -1,5 +1,6 @@
 import "dart:async";
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
@@ -40,6 +41,8 @@ class GameActController extends GetxController {
     Get.find<MainGameController>().changeStatusInGame(true);
     time = durationOfAct;
     runEngine();
+    FlameAudio.bgm.initialize();
+    FlameAudio.bgm.play('maze_general_theme.mp3');
     super.onInit();
   }
 
@@ -47,6 +50,7 @@ class GameActController extends GetxController {
   void onClose() {
     Get.find<MainGameController>().changeStatusInGame(false);
     stopEngine();
+    FlameAudio.bgm.stop();
     super.onClose();
   }
 
@@ -71,6 +75,7 @@ class GameActController extends GetxController {
       textMessage.value = mazeMap.value.message_A;
       update();
       if (time < 1 || isPlayerWinn()) {
+        FlameAudio.play('victory.wav');
         gameEnd();
       }
     });

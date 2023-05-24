@@ -15,7 +15,7 @@ class EditMenu extends StatelessWidget {
     if (adCtrl.interstitialAd != null) {
       adCtrl.interstitialAd?.show();
     } else {
-      Get.back();
+      Get.offNamed(Routes.GENERAL_MENU);
     }
   }
 

@@ -158,7 +158,7 @@ class GameMenuController extends GetxController {
       var maze = MazeMap.fromJson(mapJson);
       maze.shaddowRadius = 5;
       var ctrMain = Get.find<MainGameController>();
-      ctrMain.currentGameMap = installTeleportTrap(setFrozenTrap(maze));
+      ctrMain.currentGameMap = maze;
       ctrMain.currentMapId = map.docs[0].id;
       Get.toNamed(Routes.GAME_ACT);
     } on FirebaseException catch (error) {
@@ -177,8 +177,7 @@ class GameMenuController extends GetxController {
   MazeMap setFrozenTrap(MazeMap maze) {
     Coordinates coord = findRandomCoord(maze.mazeMap);
     maze.mazeMap[coord.row][coord.col].isFrozen_B_Here = true;
-    coord = findRandomCoord(maze.mazeMap);
-    maze.mazeMap[coord.row][coord.col].isFrozen_B_Here = true;
+    maze.Frozen_trap_B = coord;
     return maze;
   }
 
@@ -203,6 +202,8 @@ class GameMenuController extends GetxController {
     var exitCoord = findRandomCoord(map.mazeMap);
     map.mazeMap[doorCoord.row][doorCoord.col].isTeleportDoor_B_Here = true;
     map.mazeMap[doorCoord.row][doorCoord.col].isTeleportExit_B_Here = true;
+    map.DoorTeleport_B = doorCoord;
+    map.ExitTeleport_B = exitCoord;
     return map;
   }
 }

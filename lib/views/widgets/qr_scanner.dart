@@ -35,48 +35,48 @@ class _QRViewExampleState extends State<QRViewExample> {
           body: Column(
             children: <Widget>[
               Expanded(flex: 4, child: controller.BuildQrView(context)),
-              Expanded(
-                flex: 1,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      if (controller.result != null)
-                        Text(
-                            'Barcode Type: ${describeEnum(controller.result!.format)}   Data: ${controller.result!.code}')
-                      else
-                        const Text('Scan a code'),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            margin: const EdgeInsets.all(8),
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                await controller.controller?.pauseCamera();
-                              },
-                              child: const Text('pause',
-                                  style: TextStyle(fontSize: 20)),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.all(8),
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                await controller.controller?.resumeCamera();
-                              },
-                              child: const Text('resume',
-                                  style: TextStyle(fontSize: 20)),
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              )
+              // Expanded(
+              //   flex: 1,
+              //   child: FittedBox(
+              //     fit: BoxFit.contain,
+              //     child: Column(
+              //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //       children: <Widget>[
+              //         if (controller.result != null)
+              //           Text(
+              //               'Barcode Type: ${describeEnum(controller.result!.format)}   Data: ${controller.result!.code}')
+              //         else
+              //           const Text('Scan a code'),
+              //         Row(
+              //           mainAxisAlignment: MainAxisAlignment.center,
+              //           crossAxisAlignment: CrossAxisAlignment.center,
+              //           children: <Widget>[
+              //             Container(
+              //               margin: const EdgeInsets.all(8),
+              //               child: ElevatedButton(
+              //                 onPressed: () async {
+              //                   await controller.controller?.pauseCamera();
+              //                 },
+              //                 child: const Text('pause',
+              //                     style: TextStyle(fontSize: 20)),
+              //               ),
+              //             ),
+              //             Container(
+              //               margin: const EdgeInsets.all(8),
+              //               child: ElevatedButton(
+              //                 onPressed: () async {
+              //                   await controller.controller?.resumeCamera();
+              //                 },
+              //                 child: const Text('resume',
+              //                     style: TextStyle(fontSize: 20)),
+              //               ),
+              //             )
+              //           ],
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // )
             ],
           ),
         );

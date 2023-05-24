@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/bindings/bindings.dart';
 import 'package:remaze/controllers/invite_to_battle.dart';
@@ -26,7 +27,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.GAME_SPLASH_SCREEN;
+  static const INITIAL = kIsWeb? Routes.GAME_SPLASH_SCREEN : Routes.GAME_SPLASH_SCREEN;
 
   static final routes = [
     GetPage(

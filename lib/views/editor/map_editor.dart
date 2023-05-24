@@ -67,45 +67,49 @@ class MapEditorScreen extends StatelessWidget {
                         child: Opacity(
                             opacity: 0.5,
                             child: ElevatedButton(
-                                onPressed: () {
-                                  // controller.saveMap();
-                                  Get.defaultDialog(
-                                      title: '',
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          TextField(
-                                            controller:
-                                                controller.mapNameController,
-                                            keyboardType: TextInputType.text,
-                                            maxLines: 1,
-                                            decoration: InputDecoration(
-                                                labelText: 'Map Name',
-                                                hintMaxLines: 1,
-                                                border: OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color: Colors.green,
-                                                        width: 4.0))),
-                                          ),
-                                          SizedBox(
-                                            height: 30.0,
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              controller.saveMap();
-                                            },
-                                            child: Text(
-                                              'SUBMIT',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16.0),
+                                onPressed: () async {
+                                  bool isValid =
+                                      await controller.checkMazeValid();
+                                  print('Maze is valid: $isValid');
+                                  if (isValid) {
+                                    Get.defaultDialog(
+                                        title: '',
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            TextField(
+                                              controller:
+                                                  controller.mapNameController,
+                                              keyboardType: TextInputType.text,
+                                              maxLines: 1,
+                                              decoration: InputDecoration(
+                                                  labelText: 'Map Name',
+                                                  hintMaxLines: 1,
+                                                  border: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: Colors.green,
+                                                          width: 4.0))),
                                             ),
-                                          )
-                                        ],
-                                      ),
-                                      radius: 10.0);
+                                            SizedBox(
+                                              height: 30.0,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                controller.saveMap();
+                                              },
+                                              child: Text(
+                                                'SUBMIT',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16.0),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        radius: 10.0);
+                                  }
                                 },
-                                child: Text('Save'))),
+                                child: const Text('Save'))),
                       ),
                     ],
                   ),

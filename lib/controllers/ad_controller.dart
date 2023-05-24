@@ -33,7 +33,7 @@ class AdController extends GetxController {
             InterstitialAdLoadCallback(onAdLoaded: (InterstitialAd ad) {
           ad.fullScreenContentCallback = FullScreenContentCallback(
             onAdDismissedFullScreenContent: (InterstitialAd ad) {
-              Get.back();
+              Get.offNamed(Routes.GENERAL_MENU);
               interstitialAd = null;
               _loadInterstitialAd();
             },

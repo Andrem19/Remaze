@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:remaze/controllers/main_game_controller.dart';
+import 'package:remaze/controllers/routing/app_pages.dart';
 
 class QrController extends GetxController {
   Barcode? result;
@@ -39,6 +40,7 @@ class QrController extends GetxController {
       result = scanData;
       MainGameController mainCtrl = Get.find<MainGameController>();
       mainCtrl.playerSearch.text = result!.code.toString();
+      Get.offNamed(Routes.GENERAL_MENU);
     });
   }
 

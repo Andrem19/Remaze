@@ -34,7 +34,7 @@ class EndGameScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(controller.YourCurrentRole.value == controller.vinner
-                            ? 'YOU VINN'
+                            ? 'YOU WON'
                             : 'YOU LOSE', style: TextStyle(fontSize: 25, color: controller.YourCurrentRole.value == controller.vinner ? Colors.green : Colors.red, fontWeight: FontWeight.bold),),
                         Text(controller.YourCurrentRole.value == controller.vinner ? '+ 2 points' : '- 1 point', style: const TextStyle(fontSize: 18)),
                         ElevatedButton(

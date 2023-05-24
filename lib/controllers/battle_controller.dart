@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:remaze/controllers/routing/app_pages.dart';
@@ -40,6 +41,8 @@ class BattleController extends GetxController {
   void onInit() {
     mainCtrl.changeStatusInGame(true);
     gameEngine();
+    FlameAudio.bgm.initialize();
+    FlameAudio.bgm.play('maze_general_theme.mp3');
     super.onInit();
   }
 
@@ -52,11 +55,13 @@ class BattleController extends GetxController {
       _timer.cancel();
       _timer = null;
     }
+    FlameAudio.bgm.stop();
     listner.cancel();
     super.onClose();
   }
 
   void countFinal(String vinner) async {
+    FlameAudio.play('victory.wav');
     try {
       await firebaseFirestore
           .collection('gameBattle')

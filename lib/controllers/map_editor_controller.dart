@@ -11,6 +11,7 @@ import '../TestData/test_map.dart';
 import '../keys.dart';
 import '../models/maze_map.dart';
 import '../models/palyer.dart';
+import '../services/check_maze_valid.dart';
 
 class MapEditorController extends GetxController {
   Rx<bool> isLoading = false.obs;
@@ -50,6 +51,19 @@ class MapEditorController extends GetxController {
     update();
   }
 
+  Future<bool> checkMazeValid() async {
+    bool isValid = await CheckMazeValid.findPath(mazeMap.mazeMap, mazeMap.mazeMap.length - 1, 0, 0, mazeMap.mazeMap[0].length - 1);
+    if (!isValid) {
+      Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+        content:
+            Text('Maze is not valid. Sould be the path from Start to Finish'),
+        backgroundColor: Colors.red,
+      ));
+      return false;
+    }
+    return true;
+  }
+
   void saveMap() async {
     String user = pref.getString('user') ?? 'none';
     Player? pl;
@@ -68,10 +82,10 @@ class MapEditorController extends GetxController {
             'name': mapNameController.text,
             'id': id,
             'author': pl!.uid,
-            'authorName' : pl.userName,
+            'authorName': pl.userName,
             'map': mazeMap.toJson(),
-            'champions' : new Map(),
-            'rating' : 0
+            'champions': new Map(),
+            'rating': 0
           });
           Get.back();
           Keys.scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(

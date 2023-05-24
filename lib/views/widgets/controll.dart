@@ -24,6 +24,7 @@ class Control extends StatelessWidget {
                 InkWell(
                   onTap: () {
                     controller.moveDir = Direction.up;
+                    controller.playButton();
                   },
                   child: Container(
                     height: radiusCircle,
@@ -39,12 +40,16 @@ class Control extends StatelessWidget {
                 )
               ],
             ),
+            SizedBox(
+              height: 5,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 InkWell(
                   onTap: () {
                     controller.moveDir = Direction.left;
+                    controller.playButton();
                   },
                   child: Container(
                     height: radiusCircle,
@@ -58,10 +63,30 @@ class Control extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: radiusCircle,),
+                SizedBox(
+                  width: 5,
+                ),
+                Builder(
+                  builder: (context) {
+                    if (controller.moveDir == Direction.up) {
+                      return currentDirection(Icon(Icons.arrow_circle_up));
+                    } else if (controller.moveDir == Direction.left) {
+                      return currentDirection(Icon(Icons.arrow_circle_left));
+                    } else if (controller.moveDir == Direction.right) {
+                      return currentDirection(Icon(Icons.arrow_circle_right));
+                    } else if (controller.moveDir == Direction.down) {
+                      return currentDirection(Icon(Icons.arrow_circle_down));
+                    }
+                    return currentDirection(Icon(Icons.arrow_circle_up));
+                  },
+                ),
+                SizedBox(
+                  width: 5,
+                ),
                 InkWell(
                   onTap: () {
                     controller.moveDir = Direction.right;
+                    controller.playButton();
                   },
                   child: Container(
                     height: radiusCircle,
@@ -77,12 +102,16 @@ class Control extends StatelessWidget {
                 )
               ],
             ),
+            SizedBox(
+              height: 5,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 InkWell(
                   onTap: () {
                     controller.moveDir = Direction.down;
+                    controller.playButton();
                   },
                   child: Container(
                     height: radiusCircle,
@@ -102,5 +131,19 @@ class Control extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Container currentDirection(Icon icon) {
+    return Container(
+      height: radiusCircle,
+      width: radiusCircle,
+      decoration: new BoxDecoration(
+        color: Colors.red,
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: icon,
+      ),
+    );
   }
 }

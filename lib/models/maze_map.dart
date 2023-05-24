@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:remaze/models/game_info.dart';
 
@@ -234,6 +235,7 @@ class MazeMap {
     if (Frozen_trap_B.row == Player_A_Coord.row &&
         Frozen_trap_B.col == Player_A_Coord.col) {
       Player_A_Frozen = 8;
+      FlameAudio.play('freeze.wav');
       message_B = 'Player was frozen';
     }
 
@@ -243,6 +245,7 @@ class MazeMap {
       Player_A_Coord.row = ExitTeleport_B.row;
       Player_A_Coord.col = ExitTeleport_B.col;
       message_A = 'Teleport trap';
+      FlameAudio.play('teleport.mp3');
       ExitTeleport_B.isInit = false;
       return true;
     }
@@ -305,6 +308,7 @@ class MazeMap {
     if (Frozen_trap_A.row == Player_B_Coord.row &&
         Frozen_trap_A.col == Player_B_Coord.col) {
       Player_B_Frozen = 8;
+      FlameAudio.play('freeze.wav');
       message_B = 'Player was frozen';
     }
 
@@ -314,6 +318,7 @@ class MazeMap {
       Player_B_Coord.row = ExitTeleport_A.row;
       Player_B_Coord.col = ExitTeleport_A.col;
       message_B = 'Teleport trap';
+      FlameAudio.play('teleport.mp3');
       ExitTeleport_A.isInit = false;
       return true;
     }
@@ -343,6 +348,7 @@ class MazeMap {
           isInit: true, row: Player_A_Coord.row, col: Player_A_Coord.col);
       A_FrozenInstalled = true;
       message_A = 'Frozen trap instaled';
+      FlameAudio.play('freeze.wav');
     }
   }
 
@@ -377,6 +383,7 @@ class MazeMap {
           isInit: true, row: Player_B_Coord.row, col: Player_B_Coord.col);
       B_FrozenInstalled = true;
       message_B = 'Frozen trap instaled';
+      FlameAudio.play('freeze.wav');
     }
   }
 
